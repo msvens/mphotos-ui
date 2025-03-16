@@ -2,6 +2,7 @@
 
 import { PhotoDeck } from '@/components/photodeck/PhotoDeck';
 import { usePhotoContext } from '../layout';
+import { useMPContext } from '@/context/MPContext';
 import { use } from 'react';
 
 interface PhotoPageProps {
@@ -13,6 +14,7 @@ interface PhotoPageProps {
 
 export default function PhotoPage({ params, searchParams }: PhotoPageProps) {
   const { photos, isLoading, error } = usePhotoContext();
+  const { isUser } = useMPContext();
   const resolvedParams = use(params);
   const resolvedSearchParams = use(searchParams);
   const searchQuery = resolvedSearchParams.q ? `?q=${resolvedSearchParams.q}` : '';
@@ -39,6 +41,7 @@ export default function PhotoPage({ params, searchParams }: PhotoPageProps) {
       startPhotoId={resolvedParams.id}
       urlPrefix="/photo/"
       searchQuery={searchQuery}
+      editControls={isUser}
     />
   );
 } 
