@@ -4,6 +4,7 @@ import { PhotoDeck } from '@/components/photodeck/PhotoDeck';
 import { usePhotoContext } from '../layout';
 import { useMPContext } from '@/context/MPContext';
 import { use } from 'react';
+import { PageSpacing } from '@/components/layout/PageSpacing';
 
 interface PhotoPageProps {
   params: Promise<{
@@ -36,12 +37,15 @@ export default function PhotoPage({ params, searchParams }: PhotoPageProps) {
   }
 
   return (
-    <PhotoDeck
-      photos={photos}
-      startPhotoId={resolvedParams.id}
-      urlPrefix="/photo/"
-      searchQuery={searchQuery}
-      editControls={isUser}
-    />
+    <>
+      <PageSpacing height="no_spacing" />
+      <PhotoDeck
+        photos={photos}
+        startPhotoId={resolvedParams.id}
+        urlPrefix="/photo/"
+        searchQuery={searchQuery}
+        editControls={isUser}
+      />
+    </>
   );
 } 

@@ -9,6 +9,7 @@ import { Bio } from '@/components/Bio';
 import { Switch } from '@/components/Switch';
 import { LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline';
 import { Section } from '@/components/Section';
+import { PageSpacing } from '@/components/layout/PageSpacing';
 
 export default function Home() {
   const { isUser, uxConfig, isLoading } = useMPContext();
@@ -60,47 +61,50 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-[1024px] mx-auto">
-      {uxConfig.showBio && (
-        <Section showDivider>
-          <Bio />
-        </Section>
-      )}
-      
-      {isUser && (
-        <Section>
-          <div className="flex justify-center">
-            <Switch
-              checked={showPhotostream}
-              onChange={setShowPhotostream}
-              label="Show Photostream"
-            />
-          </div>
-        </Section>
-      )}
+    <>
+      <PageSpacing />
+      <div className="max-w-[1024px] mx-auto">
+        {uxConfig.showBio && (
+          <Section showDivider>
+            <Bio />
+          </Section>
+        )}
+        
+        {isUser && (
+          <Section>
+            <div className="flex justify-center">
+              <Switch
+                checked={showPhotostream}
+                onChange={setShowPhotostream}
+                label="Show Photostream"
+              />
+            </div>
+          </Section>
+        )}
 
-      <Section>
-        <PhotoGrid 
-          photos={photos}
-          columns={uxConfig.photoGridCols}
-          spacing={uxConfig.photoGridSpacing}
-          linkTo="/photo"
-          dimPhoto={(photo) => {
-            // Only dim photos when viewing all photos (not in photostream mode)
-            // and when the photo is not in the photostream
-            return !showPhotostream && isUser && !photostreamPhotoIds.has(photo.id);
-          }}
-          renderBottomIcon={isUser ? (photo) => {
-            const isInPhotostream = photostreamPhotoIds.has(photo.id);
-            return isInPhotostream ? (
-              <LockOpenIcon className="w-6 h-6 text-white" />
-            ) : (
-              <LockClosedIcon className="w-6 h-6 text-white" />
-            );
-          } : undefined}
-          onBottomIconClick={handleIconClick}
-        />
-      </Section>
-    </div>
+        <Section>
+          <PhotoGrid 
+            photos={photos}
+            columns={uxConfig.photoGridCols}
+            spacing={uxConfig.photoGridSpacing}
+            linkTo="/photo"
+            dimPhoto={(photo) => {
+              // Only dim photos when viewing all photos (not in photostream mode)
+              // and when the photo is not in the photostream
+              return !showPhotostream && isUser && !photostreamPhotoIds.has(photo.id);
+            }}
+            renderBottomIcon={isUser ? (photo) => {
+              const isInPhotostream = photostreamPhotoIds.has(photo.id);
+              return isInPhotostream ? (
+                <LockOpenIcon className="w-6 h-6 text-white" />
+              ) : (
+                <LockClosedIcon className="w-6 h-6 text-white" />
+              );
+            } : undefined}
+            onBottomIconClick={handleIconClick}
+          />
+        </Section>
+      </div>
+    </>
   );
 }

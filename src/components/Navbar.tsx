@@ -30,7 +30,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 z-50 w-full bg-mui-background-paper border-b border-mui-divider">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-mui-background-paper border-b border-mui-divider">
       <div className="px-1 mx-auto max-w-full py-2">
         <div className="flex justify-between h-12">
           {/* App Name - Left aligned */}
@@ -82,7 +82,7 @@ export default function Navbar() {
 
       {/* Mobile menu overlay */}
       <div 
-        className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-200 ${
+        className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-200 z-40 ${
           isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setIsMenuOpen(false)}
@@ -90,7 +90,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div 
-        className={`md:hidden fixed top-[88px] right-0 h-[calc(100vh-88px)] w-56 bg-mui-background-paper border-l border-mui-divider shadow-lg transition-all duration-200 ease-in-out ${
+        className={`md:hidden fixed top-12 right-0 h-[calc(100vh-48px)] w-56 bg-mui-background-paper border-l border-mui-divider shadow-lg transition-all duration-200 ease-in-out z-50 ${
           isMenuOpen 
             ? 'opacity-100 translate-x-0' 
             : 'opacity-0 translate-x-4 pointer-events-none'
