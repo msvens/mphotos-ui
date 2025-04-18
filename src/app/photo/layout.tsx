@@ -46,7 +46,7 @@ export default function PhotoLayout({
 
   return (
     <PhotoContext.Provider value={{ photos, isLoading, error }}>
-      <div className="flex flex-col items-center justify-center w-full overflow-hidden">
+      <div className="w-full">
         {children}
       </div>
     </PhotoContext.Provider>

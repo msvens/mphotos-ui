@@ -23,7 +23,7 @@ interface PhotoDeckProps {
   onDeletePhoto?: (p: PhotoMetadata) => void;
 }
 
-const IMAGE_CLASSES = "max-h-[80vh] w-auto object-contain absolute transition-opacity duration-300";
+const IMAGE_CLASSES = "w-auto h-auto max-h-[calc(100vh-200px)] object-contain transition-all duration-300";
 
 export function PhotoDeck({
   photos,
@@ -129,103 +129,150 @@ export function PhotoDeck({
   }
 
   return (
-    <>
-      <div className="relative w-full flex items-center justify-center min-h-[80vh]">
-        {/* Navigation Controls */}
-        <div className="fixed left-4 top-1/2 -translate-y-1/2 z-10">
+    <div className="flex flex-col min-h-[calc(100vh-48px)]">
+      {/* Navigation Controls */}
+      <div className="fixed left-4 top-1/2 -translate-y-1/2 z-10">
+        <IconButton
+          icon={ChevronLeftIcon}
+          onClick={() => navigateToPhoto(currentIndex - 1)}
+          disabled={currentIndex === 0}
+          size="nav"
+        />
+      </div>
+      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-10">
+        <IconButton
+          icon={ChevronRightIcon}
+          onClick={() => navigateToPhoto(currentIndex + 1)}
+          disabled={currentIndex === photos.length - 1}
+          size="nav"
+        />
+      </div>
+
+      {/* Edit Controls */}
+      {editControls && (
+        <div className="fixed left-4 top-20 z-10 flex flex-col gap-2">
           <IconButton
-            icon={ChevronLeftIcon}
-            onClick={() => navigateToPhoto(currentIndex - 1)}
-            disabled={currentIndex === 0}
-            size="nav"
+            icon={FaceSmileIcon}
+            onClick={handleProfilePic}
+            title="Set as profile picture"
+          />
+          <IconButton
+            icon={isPrivate ? LockClosedIcon : LockOpenIcon}
+            onClick={handlePrivate}
+            title={isPrivate ? "Make public" : "Make private"}
+          />
+          <IconButton
+            icon={PencilIcon}
+            onClick={handleEdit}
+            title="Edit photo description"
+          />
+          <IconButton
+            icon={ArrowPathRoundedSquareIcon}
+            onClick={() => alert('Crop/Rotate photo')}
+            title="Crop and rotate photo"
+          />
+          <IconButton
+            icon={TrashIcon}
+            onClick={handleDelete}
+            title="Delete photo"
           />
         </div>
-        <div className="fixed right-4 top-1/2 -translate-y-1/2 z-10">
-          <IconButton
-            icon={ChevronRightIcon}
-            onClick={() => navigateToPhoto(currentIndex + 1)}
-            disabled={currentIndex === photos.length - 1}
-            size="nav"
+      )}
+
+      {/* Fullscreen Control */}
+      <div className="fixed right-4 top-20 z-10">
+        <IconButton
+          icon={showFullscreen ? ArrowsPointingInIcon : ArrowsPointingOutIcon}
+          onClick={handleFullscreen}
+          title={showFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        />
+      </div>
+
+      {/* Photo Display */}
+      <div 
+        className="flex-1 flex items-center justify-center px-24"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="relative w-full flex items-center justify-center">
+          <img
+            key={`current-${currentPhoto.id}`}
+            src={photosService.getPhotoUrl(currentPhoto.id)}
+            alt={currentPhoto.title || currentPhoto.fileName}
+            className={IMAGE_CLASSES}
+            style={{ opacity: 1 }}
           />
-        </div>
-
-        {/* Edit Controls */}
-        {editControls && (
-          <div className="fixed left-4 top-20 z-10 flex flex-col gap-2">
-            <IconButton
-              icon={FaceSmileIcon}
-              onClick={handleProfilePic}
-              title="Set as profile picture"
-            />
-            <IconButton
-              icon={isPrivate ? LockClosedIcon : LockOpenIcon}
-              onClick={handlePrivate}
-              title={isPrivate ? "Make public" : "Make private"}
-            />
-            <IconButton
-              icon={PencilIcon}
-              onClick={handleEdit}
-              title="Edit photo description"
-            />
-            <IconButton
-              icon={ArrowPathRoundedSquareIcon}
-              onClick={() => alert('Crop/Rotate photo')}
-              title="Crop and rotate photo"
-            />
-            <IconButton
-              icon={TrashIcon}
-              onClick={handleDelete}
-              title="Delete photo"
-            />
-          </div>
-        )}
-
-        {/* Fullscreen Control */}
-        <div className="fixed right-4 top-20 z-10">
-          <IconButton
-            icon={showFullscreen ? ArrowsPointingInIcon : ArrowsPointingOutIcon}
-            onClick={handleFullscreen}
-            title={showFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          />
-        </div>
-
-        {/* Photo Display */}
-        <div 
-          className="w-full px-24 flex items-center justify-center"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="relative w-full h-full flex items-center justify-center">
+          
+          {nextImageId && (
             <img
-              key={`current-${currentPhoto.id}`}
-              src={photosService.getPhotoUrl(currentPhoto.id)}
-              alt={currentPhoto.title || currentPhoto.fileName}
+              key={`next-${nextImageId}`}
+              src={photosService.getPhotoUrl(nextImageId)}
+              alt=""
               className={IMAGE_CLASSES}
-              style={{ opacity: 1, zIndex: 1 }}
+              style={{ opacity: 0 }}
+              onLoad={handleNextImageLoad}
             />
-            
-            {nextImageId && (
-              <img
-                key={`next-${nextImageId}`}
-                src={photosService.getPhotoUrl(nextImageId)}
-                alt=""
-                className={IMAGE_CLASSES}
-                style={{ opacity: 0, zIndex: 0 }}
-                onLoad={handleNextImageLoad}
-              />
+          )}
+        </div>
+      </div>
+
+      {/* Photo Info Section */}
+      <div className="w-full px-24">
+        <div className="w-full">
+          {/* Title and Description */}
+          <div className="mb-8 mt-12">
+            <h2 className="text-xl font-light">{currentPhoto.title || currentPhoto.fileName}</h2>
+            {currentPhoto.description && (
+              <p className="text-gray-500 mt-2">{currentPhoto.description}</p>
             )}
           </div>
+
+          {/* Photo Metadata Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Column - Photo Details */}
+            <div className="space-y-4">
+              {/* Camera Info */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Camera</h3>
+                <p className="text-sm">{currentPhoto.camera}</p>
+                {currentPhoto.lens && (
+                  <p className="text-sm">{currentPhoto.lens}</p>
+                )}
+              </div>
+
+              {/* Settings */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Settings</h3>
+                <p className="text-sm">
+                  {currentPhoto.focal} • f/{currentPhoto.aperture} • ISO {currentPhoto.iso} • {currentPhoto.exposure}
+                </p>
+              </div>
+
+              {/* Date */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Date</h3>
+                <p className="text-sm">{new Date(currentPhoto.taken).toLocaleDateString()}</p>
+              </div>
+            </div>
+
+            {/* Right Column - Social */}
+            <div className="space-y-4">
+              {/* Likes Section */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Likes</h3>
+                <p className="text-sm">Coming soon...</p>
+              </div>
+
+              {/* Comments Section */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Comments</h3>
+                <p className="text-sm">Coming soon...</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Photo Info */}
-      <div className="w-full max-w-4xl px-4 mt-4">
-        <h2 className="text-xl font-light">{currentPhoto.title || currentPhoto.fileName}</h2>
-        {currentPhoto.description && (
-          <p className="text-gray-500 mt-2">{currentPhoto.description}</p>
-        )}
-      </div>
-    </>
+    </div>
   );
 } 
