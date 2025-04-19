@@ -23,7 +23,7 @@ interface PhotoDeckProps {
   onDeletePhoto?: (p: PhotoMetadata) => void;
 }
 
-const IMAGE_CLASSES = "w-auto h-auto max-h-[calc(100vh-200px)] object-contain transition-all duration-300";
+const IMAGE_CLASSES = "w-auto h-auto max-h-[calc(100vh-150px)] object-contain transition-all duration-300";
 
 export function PhotoDeck({
   photos,
@@ -90,7 +90,7 @@ export function PhotoDeck({
 
     const deltaX = touch.xStart - touch.xPos;
     const deltaY = touch.yStart - touch.yPos;
-    
+
     touch.xStart = touch.yStart = touch.xPos = touch.yPos = -1;
 
     if (Math.abs(deltaX) > 30 && Math.abs(deltaY) < 40) {
@@ -190,7 +190,7 @@ export function PhotoDeck({
 
       {/* Photo Display */}
       <div 
-        className="flex-1 flex items-center justify-center px-24"
+        className="flex-1 flex items-center justify-center px-16"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -203,7 +203,7 @@ export function PhotoDeck({
             className={IMAGE_CLASSES}
             style={{ opacity: 1 }}
           />
-          
+
           {nextImageId && (
             <img
               key={`next-${nextImageId}`}
@@ -218,10 +218,10 @@ export function PhotoDeck({
       </div>
 
       {/* Photo Info Section */}
-      <div className="w-full px-24">
+      <div className="w-full px-16">
         <div className="w-full">
           {/* Title and Description */}
-          <div className="mb-8 mt-12">
+          <div className="mb-8 mt-6">
             <h2 className="text-xl font-light">{currentPhoto.title || currentPhoto.fileName}</h2>
             {currentPhoto.description && (
               <p className="text-gray-500 mt-2">{currentPhoto.description}</p>
