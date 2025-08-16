@@ -9,7 +9,7 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
     <MPContextProvider>
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <div className="pt-[96px] flex-grow"> {/* 48px (Navbar height) + 48px extra spacing */}
+        <div className="flex-grow">
           <main className="px-4 max-w-6xl mx-auto w-full">
             {children}
           </main>

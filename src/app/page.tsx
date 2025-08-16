@@ -9,6 +9,7 @@ import { Bio } from '@/components/Bio';
 import { Switch } from '@/components/Switch';
 import { LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline';
 import { Section } from '@/components/Section';
+import { PageSpacing } from '@/components/layout/PageSpacing';
 
 export default function Home() {
   const { isUser, uxConfig, isLoading } = useMPContext();
@@ -25,15 +26,9 @@ export default function Home() {
         if (uxConfig.photoStreamAlbumId) {
           const streamPhotos = await photosService.getAlbumPhotos(uxConfig.photoStreamAlbumId);
           setPhotostreamPhotos(streamPhotos);
-        }
-
-        if (isUser && !showPhotostream) {
-          // Show all photos for logged-in user when not in photostream mode
-          const allPhotos = await photosService.getPhotos();
-          setPhotos(allPhotos);
-        } else if (uxConfig.photoStreamAlbumId) {
-          // Show photostream photos
-          setPhotos(photostreamPhotos);
+          
+          // Always start with photostream photos (default view)
+          setPhotos(streamPhotos);
         }
       } catch (error) {
         console.error('Error fetching photos:', error);
@@ -41,7 +36,19 @@ export default function Home() {
     }
 
     fetchPhotos();
-  }, [isLoading, uxConfig.photoStreamAlbumId, isUser, showPhotostream]);
+  }, [isLoading, uxConfig.photoStreamAlbumId]);
+
+  // Separate effect for fetching all photos when needed
+  useEffect(() => {
+    if (isUser && !showPhotostream && uxConfig.photoStreamAlbumId && photostreamPhotos.length > 0) {
+      photosService.getPhotos()
+        .then(allPhotos => setPhotos(allPhotos))
+        .catch(error => {
+          console.error('Error fetching all photos:', error);
+          setPhotos(photostreamPhotos);
+        });
+    }
+  }, [isUser, showPhotostream, uxConfig.photoStreamAlbumId, photostreamPhotos]);
 
   // Create a Set of photostream photo IDs for efficient lookup
   const photostreamPhotoIds = new Set(photostreamPhotos.map(p => p.id));
@@ -60,47 +67,58 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-[1024px] mx-auto">
-      {uxConfig.showBio && (
-        <Section showDivider>
-          <Bio />
-        </Section>
-      )}
-      
-      {isUser && (
-        <Section>
-          <div className="flex justify-center">
-            <Switch
-              checked={showPhotostream}
-              onChange={setShowPhotostream}
-              label="Show Photostream"
-            />
-          </div>
-        </Section>
-      )}
+    <>
+      <PageSpacing />
+      <div className="max-w-[1024px] mx-auto">
+        {uxConfig.showBio && (
+          <Section showDivider>
+            <Bio />
+          </Section>
+        )}
+        
+        {isUser && (
+          <Section>
+            <div className="flex justify-center">
+              <Switch
+                checked={showPhotostream}
+                onChange={(checked) => {
+                  setShowPhotostream(checked);
+                  if (checked) {
+                    // Switch to photostream photos (already loaded)
+                    setPhotos(photostreamPhotos);
+                  }
+                  // When switching to false, the useEffect will handle fetching all photos
+                }}
+                label="Show Photostream"
+              />
+            </div>
+          </Section>
+        )}
 
-      <Section>
-        <PhotoGrid 
-          photos={photos}
-          columns={uxConfig.photoGridCols}
-          spacing={uxConfig.photoGridSpacing}
-          linkTo="/photo"
-          dimPhoto={(photo) => {
-            // Only dim photos when viewing all photos (not in photostream mode)
-            // and when the photo is not in the photostream
-            return !showPhotostream && isUser && !photostreamPhotoIds.has(photo.id);
-          }}
-          renderBottomIcon={isUser ? (photo) => {
-            const isInPhotostream = photostreamPhotoIds.has(photo.id);
-            return isInPhotostream ? (
-              <LockOpenIcon className="w-6 h-6 text-white" />
-            ) : (
-              <LockClosedIcon className="w-6 h-6 text-white" />
-            );
-          } : undefined}
-          onBottomIconClick={handleIconClick}
-        />
-      </Section>
-    </div>
+        <Section>
+          <PhotoGrid 
+            photos={photos}
+            columns={uxConfig.photoGridCols}
+            spacing={uxConfig.photoGridSpacing}
+            linkTo="/photo"
+            dimPhoto={(photo) => {
+              // Only dim photos for admin users when viewing all photos
+              // and when the photo is not in the photostream
+              return isUser && !showPhotostream && !photostreamPhotoIds.has(photo.id);
+            }}
+            renderBottomIcon={isUser ? (photo) => {
+              // Admin-only: Show lock/unlock icons
+              const isInPhotostream = photostreamPhotoIds.has(photo.id);
+              return isInPhotostream ? (
+                <LockOpenIcon className="w-6 h-6 text-white" />
+              ) : (
+                <LockClosedIcon className="w-6 h-6 text-white" />
+              );
+            } : undefined}
+            onBottomIconClick={handleIconClick}
+          />
+        </Section>
+      </div>
+    </>
   );
 }

@@ -9,7 +9,9 @@ import {
   FolderIcon,
   CameraIcon,
   UserIcon,
+  Bars3Icon,
 } from '@heroicons/react/24/outline';
+import { IconButton } from './IconButton';
 
 const navigation = [
   { name: 'Home', href: '/', icon: HomeIcon },
@@ -28,7 +30,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 z-50 w-full bg-mui-background-paper border-b border-mui-divider">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-mui-background-paper border-b border-mui-divider">
       <div className="px-1 mx-auto max-w-full py-2">
         <div className="flex justify-between h-12">
           {/* App Name - Left aligned */}
@@ -48,14 +50,17 @@ export default function Navbar() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`inline-flex items-center justify-center w-16 h-16 rounded-full transition-colors ${
-                      isActive
-                        ? 'text-mui-text-primary hover:bg-mui-background-hover'
-                        : 'text-mui-text-secondary hover:text-mui-text-primary hover:bg-mui-background-hover'
-                    }`}
+                    className="inline-flex items-center justify-center"
                     title={item.name}
                   >
-                    <item.icon className="w-8 h-8 stroke-[1.25]" aria-hidden="true" />
+                    <IconButton
+                      icon={item.icon}
+                      size="large"
+                      className={isActive
+                        ? 'text-mui-text-primary bg-transparent hover:bg-mui-background-hover'
+                        : 'text-mui-text-secondary bg-transparent hover:text-mui-text-primary hover:bg-mui-background-hover'
+                      }
+                    />
                     <span className="sr-only">{item.name}</span>
                   </Link>
                 );
@@ -64,26 +69,12 @@ export default function Navbar() {
             
             {/* Mobile menu button */}
             <div className="flex items-center md:hidden">
-              <button
-                type="button"
+              <IconButton
+                icon={Bars3Icon}
                 onClick={toggleMenu}
-                className="inline-flex items-center justify-center w-16 h-16 text-mui-text-secondary rounded-full hover:text-mui-text-primary hover:bg-mui-background-hover focus:outline-none focus:ring-2 focus:ring-mui-primary focus:ring-offset-2 focus:ring-offset-mui-background-paper"
-              >
-                <span className="sr-only">Open main menu</span>
-                <svg
-                  className={`w-8 h-8 transition-transform duration-200 ${isMenuOpen ? 'rotate-90' : ''}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.25"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                  />
-                </svg>
-              </button>
+                size="large"
+                className="text-mui-text-secondary bg-transparent hover:text-mui-text-primary hover:bg-mui-background-hover"
+              />
             </div>
           </div>
         </div>
@@ -91,7 +82,7 @@ export default function Navbar() {
 
       {/* Mobile menu overlay */}
       <div 
-        className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-200 ${
+        className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-200 z-40 ${
           isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setIsMenuOpen(false)}
@@ -99,7 +90,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div 
-        className={`md:hidden fixed top-[88px] right-0 h-[calc(100vh-88px)] w-56 bg-mui-background-paper border-l border-mui-divider shadow-lg transition-all duration-200 ease-in-out ${
+        className={`md:hidden fixed top-12 right-0 h-[calc(100vh-48px)] w-56 bg-mui-background-paper border-l border-mui-divider shadow-lg transition-all duration-200 ease-in-out z-50 ${
           isMenuOpen 
             ? 'opacity-100 translate-x-0' 
             : 'opacity-0 translate-x-4 pointer-events-none'

@@ -1,71 +1,84 @@
 'use client';
 
+import { useState } from 'react';
+import { useMPContext } from '@/context/MPContext';
+import { Login } from '@/components/account/Login';
+import { Profile } from '@/components/account/Profile';
+import { Logout } from '@/components/account/Logout';
+import { GoogleDrive } from '@/components/account/GoogleDrive';
+import { UxConfig } from '@/components/account/UxConfig';
 import { Divider } from "@/components/Divider";
-import { Button } from "@/components/Button";
+
+const PROFILE = "profile";
+const DRIVE = "drive";
+const UXCONFIG = "uxconfig";
+const LOGOUT = "logout";
+
+const MenuItems = [
+  { id: PROFILE, name: "Profile", href: `/account/${PROFILE}` },
+  { id: DRIVE, name: "Google Drive", href: `/account/${DRIVE}` },
+  { id: UXCONFIG, name: "UX Config", href: `/account/${UXCONFIG}` },
+  { id: LOGOUT, name: "Logout", href: `/account/${LOGOUT}` },
+];
 
 export default function Account() {
+  const { isUser, isLoading } = useMPContext();
+  const [activeSection, setActiveSection] = useState(PROFILE);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mui-text-primary mx-auto mb-4"></div>
+          <p className="text-mui-text-secondary">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login form when not authenticated
+  if (!isUser) {
+    return <Login />;
+  }
+
+  // Show authenticated account interface with navigation
   return (
-    <div className="space-y-8 max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-2xl font-light mb-4">Account Settings</h1>
-        <p className="text-mui-text-secondary">Manage your profile and preferences</p>
+    <div className="flex gap-8">
+      {/* Left Side Navigation Menu */}
+      <div className="w-64 flex-shrink-0">
+        <div className="sticky top-24">
+          <div className="bg-mui-background-paper border border-mui-divider rounded-lg p-4">
+            <h2 className="text-lg font-medium mb-4 text-mui-text-primary">Account Settings</h2>
+            <nav className="space-y-2">
+              {MenuItems.map((item) => {
+                const isActive = activeSection === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSection(item.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-mui-primary text-white'
+                        : 'text-mui-text-secondary hover:text-mui-text-primary hover:bg-mui-background-hover'
+                    }`}
+                  >
+                    {item.name}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
       </div>
 
-      <Divider />
-
-      {/* Profile Section */}
-      <section>
-        <h2 className="text-xl font-light mb-6">Profile Information</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Display Name</label>
-            <input
-              type="text"
-              className="w-full p-2 rounded border border-mui-divider bg-transparent"
-              placeholder="Your name"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Bio</label>
-            <textarea
-              className="w-full p-2 rounded border border-mui-divider bg-transparent"
-              rows={3}
-              placeholder="Tell us about yourself"
-            />
-          </div>
-          <div>
-            <Button variant="primary">Update Profile</Button>
-          </div>
-        </div>
-      </section>
-
-      <Divider />
-
-      {/* Preferences Section */}
-      <section>
-        <h2 className="text-xl font-light mb-6">Preferences</h2>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span>Email Notifications</span>
-            <input type="checkbox" className="form-checkbox" />
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Dark Mode</span>
-            <input type="checkbox" className="form-checkbox" checked readOnly />
-          </div>
-        </div>
-      </section>
-
-      <Divider />
-
-      {/* Danger Zone */}
-      <section>
-        <h2 className="text-xl font-light mb-6 text-red-500">Danger Zone</h2>
-        <div>
-          <Button variant="secondary">Delete Account</Button>
-        </div>
-      </section>
+      {/* Right Side Content */}
+      <div className="flex-1">
+        {activeSection === PROFILE && <Profile />}
+        {activeSection === DRIVE && <GoogleDrive />}
+        {activeSection === UXCONFIG && <UxConfig />}
+        {activeSection === LOGOUT && <Logout />}
+      </div>
     </div>
   );
 } 
