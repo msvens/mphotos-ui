@@ -6,6 +6,41 @@ A modern photo blog frontend application built with Next.js, inspired by [mellow
 
 MPhotos UI is designed to provide a clean and elegant way to showcase photographs with blog-style presentation. The frontend communicates with a dedicated backend service to manage and display photo content.
 
+## User Roles and Authentication Model
+
+MPhotos UI operates with a **single-owner, multi-guest** authentication model:
+
+### **Owner/Admin User (Single User)**
+- **One primary user** owns and administers the entire photo blog
+- **Authentication required** for administrative functions
+- **Password-based login** (no username needed)
+- **Full administrative access** including:
+  - Profile management (name, bio, profile picture)
+  - UX configuration (grid layout, spacing, theme preferences)
+  - Google Drive integration settings
+  - Content management (photos, albums, cameras)
+  - Guest user management and moderation
+
+### **Guest Users (Multiple Users)**
+- **Public registration** available to anyone
+- **Email verification required** for activation
+- **Social interaction features** including:
+  - Photo comments and likes
+  - Guest profile management
+  - Activity tracking
+- **No administrative access** - read-only for site configuration
+- **Separate authentication system** from owner login
+
+### **Authentication Flow**
+1. **Owner Login**: Password-based authentication for administrative access
+2. **Guest Registration**: Email-based registration with verification
+3. **Session Management**: Server-side sessions with automatic cookie handling
+4. **Role-Based Access**: Different UI and functionality based on user type
+
+This model ensures that the photo blog remains under the owner's control while allowing public interaction through guest accounts.
+
+> **Current Implementation Status**: The owner authentication system (login/logout, profile management, UX configuration) is fully implemented. Guest user functionality (registration, comments, likes) is planned for future development.
+
 ## Navigation Structure
 
 The application features a toolbar with five main navigation sections:
@@ -40,14 +75,14 @@ The application features a toolbar with five main navigation sections:
    - Technical specifications
    - Personal experiences and reviews
    - Admin controls for camera information
-5. **Guest** - User registration and interaction featuring:
-   - Guest registration form
+5. **Guest** - Guest user registration and social interaction featuring:
+   - Guest registration and email verification
    - Social features activation
-   - Comment functionality
+   - Comment functionality on photos
    - Like/favorite capabilities
-   - User profile management
-   - Authentication system
-   - Admin guest management
+   - Guest profile management
+   - Activity tracking and history
+   - Separate from admin authentication system
 
 ## Features (Planned)
 
@@ -82,7 +117,9 @@ The application features a toolbar with five main navigation sections:
 - Organized photo collections through albums
 - Guest access management
 
-## Admin Features
+## Owner/Admin Features
+
+*These features are only available to the authenticated owner/admin user:*
 
 ### Site Configuration
 - Grid layout customization (columns, spacing, sizes)
@@ -108,6 +145,27 @@ The application features a toolbar with five main navigation sections:
 - Image processing settings
 - Cache management
 - Performance optimization
+
+## Guest Features
+
+*These features are available to registered guest users:*
+
+### Social Interaction
+- Photo commenting and discussion
+- Like/favorite photo functionality
+- Guest profile creation and management
+- Activity history and tracking
+
+### Content Access
+- View all public photos and albums
+- Access to camera equipment information
+- Read-only access to site content
+- Personalized guest experience
+
+### Guest Management
+- Self-service registration and verification
+- Profile customization
+- Privacy settings and preferences
 
 ## API Integration
 

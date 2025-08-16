@@ -15,12 +15,12 @@ interface PhotoPageProps {
 
 export default function PhotoPage({ params, searchParams }: PhotoPageProps) {
   const { photos, isLoading, error } = usePhotoContext();
-  const { isUser } = useMPContext();
+  const { isUser, uxConfig, isLoading: isConfigLoading } = useMPContext();
   const resolvedParams = use(params);
   const resolvedSearchParams = use(searchParams);
   const searchQuery = resolvedSearchParams.q ? `?q=${resolvedSearchParams.q}` : '';
 
-  if (isLoading) {
+  if (isLoading || isConfigLoading) {
     return (
       <div className="flex items-center justify-center h-[80vh]">
         <div className="text-gray-400">Loading photos...</div>
@@ -45,6 +45,7 @@ export default function PhotoPage({ params, searchParams }: PhotoPageProps) {
         urlPrefix="/photo/"
         searchQuery={searchQuery}
         editControls={isUser}
+        windowFullScreen={uxConfig.windowFullScreen}
       />
     </>
   );

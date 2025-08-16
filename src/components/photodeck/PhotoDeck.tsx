@@ -18,6 +18,7 @@ interface PhotoDeckProps {
   urlPrefix: string;
   searchQuery?: string;
   editControls?: boolean;
+  windowFullScreen?: boolean;
   onClearSearchQuery?: (photoId: string) => void;
   onUpdatePhoto?: (p: PhotoMetadata) => void;
   onDeletePhoto?: (p: PhotoMetadata) => void;
@@ -31,6 +32,7 @@ export function PhotoDeck({
   urlPrefix,
   searchQuery,
   editControls = false,
+  windowFullScreen,
   onClearSearchQuery,
   onUpdatePhoto,
   onDeletePhoto,
@@ -99,9 +101,42 @@ export function PhotoDeck({
   };
 
   const handleFullscreen = () => {
-    setShowFullscreen(!showFullscreen);
-    alert('Fullscreen toggled');
+    
+    if (windowFullScreen) {
+      // Use browser fullscreen API
+      try {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().then(() => {
+          }).catch((err) => {
+            // Fallback to local fullscreen if browser fullscreen fails
+            setShowFullscreen(true);
+          });
+        } else {
+          document.exitFullscreen().then(() => {
+          }).catch((err) => {
+          });
+        }
+      } catch (err) {
+        // Fallback to local fullscreen
+        setShowFullscreen(!showFullscreen);
+      }
+    } else {
+      // Use local fullscreen mode
+      setShowFullscreen(!showFullscreen);
+    }
   };
+
+  // Listen for fullscreen changes when using browser fullscreen API
+  useEffect(() => {
+    if (!windowFullScreen) return;
+
+    const handleFullscreenChange = () => {
+      setShowFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [windowFullScreen]);
 
   const handlePrivate = () => {
     setIsPrivate(!isPrivate);
@@ -124,6 +159,66 @@ export function PhotoDeck({
     return (
       <div className="flex items-center justify-center h-[80vh]">
         <div className="text-gray-400">No photos available</div>
+      </div>
+    );
+  }
+
+  // Fullscreen mode - photo takes up entire browser window (not system fullscreen)
+  if (showFullscreen) {
+    return (
+      <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+        {/* Navigation Controls - Fullscreen Mode */}
+        <div className="fixed left-4 top-1/2 -translate-y-1/2 z-10">
+          <IconButton
+            icon={ChevronLeftIcon}
+            onClick={() => {
+              const newIndex = currentIndex - 1;
+              if (newIndex >= 0) {
+                setCurrentIndex(newIndex);
+              }
+            }}
+            disabled={currentIndex === 0}
+            size="nav"
+          />
+        </div>
+        <div className="fixed right-4 top-1/2 -translate-y-1/2 z-10">
+          <IconButton
+            icon={ChevronRightIcon}
+            onClick={() => {
+              const newIndex = currentIndex + 1;
+              if (newIndex < photos.length) {
+                setCurrentIndex(newIndex);
+              }
+            }}
+            disabled={currentIndex === photos.length - 1}
+            size="nav"
+          />
+        </div>
+
+        {/* Fullscreen Toggle - Fullscreen Mode */}
+        <div className="fixed right-4 top-4 z-10">
+          <IconButton
+            icon={ArrowsPointingInIcon}
+            onClick={handleFullscreen}
+            title="Exit fullscreen"
+          />
+        </div>
+
+        {/* Photo Display - Fullscreen Mode */}
+        <div 
+          className="w-full h-full flex items-center justify-center"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <img
+            key={`fullscreen-${currentPhoto.id}`}
+            src={photosService.getPhotoUrl(currentPhoto.id)}
+            alt={currentPhoto.title || currentPhoto.fileName}
+            className="max-w-full max-h-full w-auto h-auto object-contain"
+            style={{ opacity: 1 }}
+          />
+        </div>
       </div>
     );
   }
@@ -182,15 +277,15 @@ export function PhotoDeck({
       {/* Fullscreen Control */}
       <div className="fixed right-4 top-20 z-10">
         <IconButton
-          icon={showFullscreen ? ArrowsPointingInIcon : ArrowsPointingOutIcon}
+          icon={windowFullScreen ? (showFullscreen ? ArrowsPointingInIcon : ArrowsPointingOutIcon) : ArrowsPointingOutIcon}
           onClick={handleFullscreen}
-          title={showFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          title={windowFullScreen ? (showFullscreen ? "Exit fullscreen" : "Enter fullscreen") : "Enter fullscreen"}
         />
       </div>
 
       {/* Photo Display */}
       <div 
-        className="flex-1 flex items-center justify-center px-16"
+        className="flex items-center justify-center px-16 pt-8 pb-2"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -218,56 +313,43 @@ export function PhotoDeck({
       </div>
 
       {/* Photo Info Section */}
-      <div className="w-full px-16">
-        <div className="w-full">
-          {/* Title and Description */}
-          <div className="mb-8 mt-6">
-            <h2 className="text-xl font-light">{currentPhoto.title || currentPhoto.fileName}</h2>
-            {currentPhoto.description && (
-              <p className="text-gray-500 mt-2">{currentPhoto.description}</p>
-            )}
-          </div>
-
+      <div className="w-full px-16 mt-2 mb-auto">
+        <div className="max-w-4xl mx-auto">
           {/* Photo Metadata Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column - Photo Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {/* Left Column - Social Features */}
             <div className="space-y-4">
-              {/* Camera Info */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Camera</h3>
-                <p className="text-sm">{currentPhoto.camera}</p>
-                {currentPhoto.lens && (
-                  <p className="text-sm">{currentPhoto.lens}</p>
-                )}
+              {/* Like Section */}
+              <div className="flex items-center space-x-3">
+                <div className="cursor-pointer hover:scale-110 transition-transform">
+                  <svg className="w-6 h-6 text-white hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
+                <span className="text-sm text-white">be the first one to like this</span>
               </div>
 
-              {/* Settings */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Settings</h3>
-                <p className="text-sm">
-                  {currentPhoto.focal} • f/{currentPhoto.aperture} • ISO {currentPhoto.iso} • {currentPhoto.exposure}
-                </p>
-              </div>
-
-              {/* Date */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Date</h3>
-                <p className="text-sm">{new Date(currentPhoto.taken).toLocaleDateString()}</p>
+              {/* Comment Section */}
+              <div className="relative">
+                <input 
+                  type="text"
+                  className="w-full px-3 py-2 pr-20 border border-gray-300 rounded bg-transparent focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm text-white placeholder-gray-400"
+                  placeholder="Share your thoughts..."
+                />
+                <button className="absolute right-1 top-1 px-3 py-1 text-white hover:text-gray-200 transition-colors">
+                  POST
+                </button>
               </div>
             </div>
 
-            {/* Right Column - Social */}
-            <div className="space-y-4">
-              {/* Likes Section */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Likes</h3>
-                <p className="text-sm">Coming soon...</p>
-              </div>
-
-              {/* Comments Section */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Comments</h3>
-                <p className="text-sm">Coming soon...</p>
+            {/* Right Column - Photo Details */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-white">Sunset at Golden Gate Bridge</h3>
+              <div className="text-sm text-white space-y-1">
+                <div>Canon EOS R5</div>
+                <div>RF 24-70mm f/2.8L IS USM</div>
+                <div>35mm • f/8 • ISO 100 • 1/125s</div>
+                <div>March 15, 2024</div>
               </div>
             </div>
           </div>
