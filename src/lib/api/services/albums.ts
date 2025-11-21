@@ -1,17 +1,17 @@
-import { Album, PhotoMetadata } from '../types';
+import { Album, PhotoList, AffectedItems } from '../types';
 import { API_ENDPOINTS } from '../config';
 import { api } from '../client';
 
 export interface AlbumsService {
   getAlbums(): Promise<Album[]>;
-  getAlbum(name: string): Promise<Album>;
-  createAlbum(album: Partial<Album>): Promise<Album>;
-  updateAlbum(name: string, album: Partial<Album>): Promise<Album>;
-  deleteAlbum(name: string): Promise<void>;
-  getAlbumPhotos(name: string): Promise<PhotoMetadata[]>;
-  updateAlbumPhotos(name: string, photoIds: string[]): Promise<Album>;
-  setAlbumCover(name: string, photoId: string): Promise<Album>;
-  getAlbumCoverUrl(name: string): string;
+  getAlbum(id: string): Promise<Album>;
+  createAlbum(name: string, description: string, coverPic: string): Promise<Album>;
+  updateAlbum(album: Album): Promise<Album>;
+  deleteAlbum(id: string): Promise<Album>;
+  getAlbumPhotos(id: string, code?: string): Promise<PhotoList>;
+  addAlbumPhotos(id: string, photoIds: string[]): Promise<AffectedItems>;
+  deleteAlbumPhotos(id: string, photoIds: string[]): Promise<AffectedItems>;
+  updateAlbumOrder(album: Album, photoList: PhotoList): Promise<Album>;
 }
 
 export const albumsService: AlbumsService = {
@@ -19,35 +19,42 @@ export const albumsService: AlbumsService = {
     return api.get<Album[]>(API_ENDPOINTS.albums);
   },
 
-  async getAlbum(name: string) {
-    return api.get<Album>(API_ENDPOINTS.album(name));
+  async getAlbum(id: string) {
+    return api.get<Album>(API_ENDPOINTS.album(id));
   },
 
-  async createAlbum(album: Partial<Album>) {
-    return api.post<Album>(API_ENDPOINTS.albums, album);
+  async createAlbum(name: string, description: string, coverPic: string) {
+    return api.post<Album>(API_ENDPOINTS.albums, { name, description, coverPic });
   },
 
-  async updateAlbum(name: string, album: Partial<Album>) {
-    return api.put<Album>(API_ENDPOINTS.album(name), album);
+  async updateAlbum(album: Album) {
+    return api.put<Album>(API_ENDPOINTS.album(album.id), album);
   },
 
-  async deleteAlbum(name: string) {
-    return api.delete(API_ENDPOINTS.album(name));
+  async deleteAlbum(id: string) {
+    return api.delete<Album>(API_ENDPOINTS.album(id));
   },
 
-  async getAlbumPhotos(name: string) {
-    return api.get<PhotoMetadata[]>(API_ENDPOINTS.albumPhotos(name));
+  async getAlbumPhotos(id: string, code?: string) {
+    const url = code
+      ? `${API_ENDPOINTS.albumPhotos(id)}?code=${encodeURIComponent(code)}`
+      : API_ENDPOINTS.albumPhotos(id);
+    return api.get<PhotoList>(url);
   },
 
-  async updateAlbumPhotos(name: string, photoIds: string[]) {
-    return api.put<Album>(API_ENDPOINTS.albumPhotos(name), { photos: photoIds });
+  async addAlbumPhotos(id: string, photoIds: string[]) {
+    return api.put<AffectedItems>(`${API_ENDPOINTS.albumPhotos(id)}/add`, { photoIds });
   },
 
-  async setAlbumCover(name: string, photoId: string) {
-    return api.put<Album>(API_ENDPOINTS.albumCover(name), { coverPic: photoId });
+  async deleteAlbumPhotos(id: string, photoIds: string[]) {
+    return api.put<AffectedItems>(`${API_ENDPOINTS.albumPhotos(id)}/delete`, { photoIds });
   },
 
-  getAlbumCoverUrl(name: string) {
-    return API_ENDPOINTS.albumCover(name);
+  async updateAlbumOrder(album: Album, photoList: PhotoList) {
+    if (photoList.length < 2) {
+      return Promise.resolve(album);
+    }
+    const photoIds = photoList.photos.map((p) => p.id);
+    return api.put<Album>(`${API_ENDPOINTS.album(album.id)}/order`, { photos: photoIds });
   },
 }; 

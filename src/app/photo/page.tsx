@@ -12,9 +12,9 @@ export default function PhotosPage() {
   useEffect(() => {
     const redirectToFirstPhoto = async () => {
       try {
-        const photos = await photosService.getPhotos();
-        if (photos && photos.length > 0) {
-          router.replace(`/photo/${photos[0].id}`);
+        const photoList = await photosService.getPhotos();
+        if (photoList.photos && photoList.photos.length > 0) {
+          router.replace(`/photo/${photoList.photos[0].id}`);
         } else {
           setError('No photos available');
         }

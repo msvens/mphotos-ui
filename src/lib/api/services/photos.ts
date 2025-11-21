@@ -1,43 +1,41 @@
-import { PhotoMetadata } from '../types';
+import { PhotoMetadata, PhotoList, AffectedItems, Album } from '../types';
 import { API_ENDPOINTS } from '../config';
 import { api } from '../client';
 
 export interface PhotosService {
-  getPhotos(): Promise<PhotoMetadata[]>;
-  getAlbumPhotos(albumId: string): Promise<PhotoMetadata[]>;
+  getPhotos(): Promise<PhotoList>;
+  getPagedPhotos(limit: number, offset: number): Promise<PhotoList>;
   getPhoto(id: string): Promise<PhotoMetadata>;
-  updatePhotoMetadata(id: string, metadata: Partial<PhotoMetadata>): Promise<PhotoMetadata>;
-  uploadPhoto(file: File): Promise<PhotoMetadata>;
-  deletePhoto(id: string): Promise<void>;
-  getPhotoUrl(id: string): string;
+  updatePhoto(id: string, title: string, description: string, keywords: string): Promise<PhotoMetadata>;
+  uploadLocalPhoto(file: File): Promise<PhotoMetadata>;
+  deletePhoto(id: string, removeFiles: boolean): Promise<PhotoMetadata>;
+  setPhotoAlbums(photoId: string, albumIds: string[]): Promise<AffectedItems>;
+  getPhotoAlbums(photoId: string): Promise<Album[]>;
+  getThumbUrlId(id: string): string;
+  getLandscapeUrl(fileName: string): string;
+  getPortraitUrl(fileName: string): string;
+  getSquareUrl(fileName: string): string;
+  getResizeUrl(fileName: string): string;
+  getOriginalUrl(fileName: string): string;
   getPhotoThumbUrl(id: string): string;
   getPhotoResizeUrl(id: string): string;
-}
-
-interface PhotoList {
-  length: number;
-  photos: PhotoMetadata[];
+  getPhotoUrl(id: string): string;
 }
 
 export const photosService: PhotosService = {
   async getPhotos() {
-    try {
-      const response = await api.get<PhotoList>(API_ENDPOINTS.photos);
-      return response.photos;
-    } catch (error) {
-      console.error('Error fetching photos:', error);
-      return [];
-    }
+    return this.getPagedPhotos(0, 0);
   },
 
-  async getAlbumPhotos(albumId: string) {
+  async getPagedPhotos(limit: number, offset: number) {
+    const url = offset
+      ? `${API_ENDPOINTS.photos}?limit=${limit}&offset=${offset}`
+      : `${API_ENDPOINTS.photos}?limit=${limit}`;
     try {
-      const endpoint = API_ENDPOINTS.albumPhotos(albumId);
-      const response = await api.get<PhotoList>(endpoint);
-      return response.photos;
+      return await api.get<PhotoList>(url);
     } catch (error) {
-      console.error('Error fetching album photos:', error);
-      return [];
+      console.error('Error fetching photos:', error);
+      return { length: 0, photos: [] };
     }
   },
 
@@ -45,24 +43,58 @@ export const photosService: PhotosService = {
     return api.get<PhotoMetadata>(API_ENDPOINTS.photo(id));
   },
 
-  async updatePhotoMetadata(id: string, metadata: Partial<PhotoMetadata>) {
-    return api.put<PhotoMetadata>(API_ENDPOINTS.photoMetadata(id), metadata);
+  async updatePhoto(id: string, title: string, description: string, keywords: string) {
+    const data = {
+      id,
+      title,
+      description,
+      keywords: keywords.split(',').map(k => k.trim()).filter(k => k.length > 0),
+    };
+    return api.put<PhotoMetadata>(API_ENDPOINTS.photo(id), data);
   },
 
-  async uploadPhoto(file: File) {
+  async uploadLocalPhoto(file: File) {
     const formData = new FormData();
     formData.append('image', file, file.name);
     formData.append('sourceId', file.name);
     formData.append('sourceDate', new Date(file.lastModified).toISOString());
-    return api.post<PhotoMetadata>(API_ENDPOINTS.photos, formData);
+    return api.post<PhotoMetadata>('/api/local/upload', formData);
   },
 
-  async deletePhoto(id: string) {
-    return api.delete(API_ENDPOINTS.photo(id));
+  async deletePhoto(id: string, removeFiles: boolean) {
+    return api.delete<PhotoMetadata>(API_ENDPOINTS.photo(id), { body: { removeFiles } });
   },
 
-  getPhotoUrl(id: string) {
-    return API_ENDPOINTS.photoFile(id);
+  async setPhotoAlbums(photoId: string, albumIds: string[]) {
+    return api.put<AffectedItems>(`${API_ENDPOINTS.photo(photoId)}/albums/set`, { albumIds: albumIds });
+  },
+
+  async getPhotoAlbums(photoId: string) {
+    return api.get<Album[]>(`${API_ENDPOINTS.photo(photoId)}/albums`);
+  },
+
+  getThumbUrlId(id: string) {
+    return `/api/thumbs/${id}`;
+  },
+
+  getLandscapeUrl(fileName: string) {
+    return `/api/landscapes/${fileName}`;
+  },
+
+  getPortraitUrl(fileName: string) {
+    return `/api/portraits/${fileName}`;
+  },
+
+  getSquareUrl(fileName: string) {
+    return `/api/squares/${fileName}`;
+  },
+
+  getResizeUrl(fileName: string) {
+    return `/api/resizes/${fileName}`;
+  },
+
+  getOriginalUrl(fileName: string) {
+    return `/api/images/${fileName}`;
   },
 
   getPhotoThumbUrl(id: string) {
@@ -71,5 +103,9 @@ export const photosService: PhotosService = {
 
   getPhotoResizeUrl(id: string) {
     return API_ENDPOINTS.photoResize(id);
+  },
+
+  getPhotoUrl(id: string) {
+    return API_ENDPOINTS.photoFile(id);
   },
 }; 

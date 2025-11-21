@@ -2,7 +2,7 @@
 
 import { useMPContext } from '@/context/MPContext';
 import { useEffect, useState } from 'react';
-import { photosService } from '@/lib/api/services';
+import { photosService, albumsService } from '@/lib/api/services';
 import { PhotoMetadata } from '@/lib/api/types';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { Bio } from '@/components/Bio';
@@ -16,19 +16,29 @@ export default function Home() {
   const [photos, setPhotos] = useState<PhotoMetadata[]>([]);
   const [photostreamPhotos, setPhotostreamPhotos] = useState<PhotoMetadata[]>([]);
   const [showPhotostream, setShowPhotostream] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     async function fetchPhotos() {
       if (isLoading) return;
-      
+
       try {
-        // Always fetch photostream photos for dimming logic
         if (uxConfig.photoStreamAlbumId) {
-          const streamPhotos = await photosService.getAlbumPhotos(uxConfig.photoStreamAlbumId);
-          setPhotostreamPhotos(streamPhotos);
-          
+          // Fetch photostream photos for dimming logic
+          const streamPhotoList = await albumsService.getAlbumPhotos(uxConfig.photoStreamAlbumId);
+          setPhotostreamPhotos(streamPhotoList.photos);
+
           // Always start with photostream photos (default view)
-          setPhotos(streamPhotos);
+          setPhotos(streamPhotoList.photos);
+        } else {
+          // Fallback to all photos if no photostream album is configured
+          const allPhotoList = await photosService.getPhotos();
+          setPhotos(allPhotoList.photos);
         }
       } catch (error) {
         console.error('Error fetching photos:', error);
@@ -42,7 +52,7 @@ export default function Home() {
   useEffect(() => {
     if (isUser && !showPhotostream && uxConfig.photoStreamAlbumId && photostreamPhotos.length > 0) {
       photosService.getPhotos()
-        .then(allPhotos => setPhotos(allPhotos))
+        .then(photoList => setPhotos(photoList.photos))
         .catch(error => {
           console.error('Error fetching all photos:', error);
           setPhotos(photostreamPhotos);
@@ -58,7 +68,7 @@ export default function Home() {
     alert(isInPhotostream ? 'Unlocked' : 'Locked');
   };
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         Loading...

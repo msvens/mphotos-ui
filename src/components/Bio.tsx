@@ -29,13 +29,15 @@ export function Bio() {
   return (
     <div className="w-full mx-auto">
       <div className="flex flex-wrap items-center justify-center gap-8">
-        <div className="flex items-center">
-          <img
-            src={user.pic}
-            alt={user.name}
-            className={`rounded-full object-cover ${getImageSize(isLargeDisplay)}`}
-          />
-        </div>
+        {user.pic && (
+          <div className="flex items-center">
+            <img
+              src={user.pic}
+              alt={user.name}
+              className={`rounded-full object-cover ${getImageSize(isLargeDisplay)}`}
+            />
+          </div>
+        )}
         <div className="text-left">
           <h2 className="text-lg font-semibold mb-3">{user.name}</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">{user.bio}</p>

@@ -35,7 +35,7 @@ export default function Guest() {
             />
           </div>
           <div>
-            <Button variant="primary">Post Message</Button>
+            <Button color="primary">Post Message</Button>
           </div>
         </form>
       </section>

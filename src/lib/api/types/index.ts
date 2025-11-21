@@ -1,47 +1,88 @@
+export enum PhotoOrder {
+  None = 0,
+  UploadDate,
+  OriginalDate,
+  ManualOrder
+}
+
+export interface AffectedItems {
+  numItems: number;
+}
+
 export interface PhotoMetadata {
   id: string;
+  md5: string;
+  source: string;
+  sourceDate: string;
+  uploadDate: string;
+  originalDate: string;
   fileName: string;
-  fileType: string;
-  camera: string;
-  lens: string;
-  taken: string;
-  uploaded: string;
+  title: string;
+  keywords: string;
+  description: string;
+  cameraMake: string;
+  cameraModel: string;
+  lensMake?: string;
+  lensModel?: string;
+  focalLength: string;
+  focalLength35: string;
   iso: number;
   exposure: string;
-  aperture: string;
-  focal: string;
-  flash: string;
+  fNumber: number;
   width: number;
   height: number;
-  title: string;
-  description: string;
-  keywords: string[];
-  albums: string[];
-  isPrivate: boolean;
+  likes: number;
+}
+
+export interface PhotoList {
+  length: number;
+  photos: PhotoMetadata[];
 }
 
 export interface Camera {
-  name: string;
-  manufacturer: string;
+  id: string;
   model: string;
-  introduced: string;
-  discontinued: string;
-  type: string;
-  mount: string;
-  format: string;
-  pixels: string;
-  description: string;
+  make: string;
+  year: number;
+  effectivePixels: number;
+  totalPixels: number;
+  sensorSize: string;
+  sensorType: string;
+  sensorResolution: string;
+  imageResolution: string;
+  cropFactor: number;
+  opticalZoom: number;
+  digitalZoom: boolean;
+  iso: string;
+  raw: boolean;
+  manualFocus: boolean;
+  focusRange: number;
+  macroFocusRange: number;
+  focalLengthEquiv: string;
+  aperturePriority: boolean;
+  maxAperture: string;
+  maxApertureEquiv: string;
+  metering: string;
+  exposureComp: string;
+  shutterPriority: boolean;
+  minShutterSpeed: string;
+  maxShutterSpeed: string;
+  builtInFlash: boolean;
+  externalFlash: boolean;
+  viewFinder: string;
+  videoCapture: boolean;
+  maxVideoResolution: string;
+  gps: boolean;
   image: string;
 }
 
 export interface Album {
+  id: string;
   name: string;
-  title: string;
   description: string;
-  created: string;
-  updated: string;
   coverPic: string;
-  photos: string[];
+  code: string;
+  orderBy: PhotoOrder;
 }
 
 export interface User {

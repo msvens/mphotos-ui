@@ -9,7 +9,7 @@ export function Profile() {
   const { user, isUser } = useMPContext();
   const [name, setName] = useState(user.name || '');
   const [bio, setBio] = useState(user.bio || '');
-  const [pic, setPic] = useState(user.image || '');
+  const [pic, setPic] = useState(user.pic || '');
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);

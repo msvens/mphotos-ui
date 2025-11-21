@@ -1,7 +1,7 @@
 'use client';
 
 import { PhotoDeck } from '@/components/photodeck/PhotoDeck';
-import { usePhotoContext } from '../layout';
+import { usePhotoContext } from '@/context/PhotoContext';
 import { useMPContext } from '@/context/MPContext';
 import { use } from 'react';
 import { PageSpacing } from '@/components/layout/PageSpacing';

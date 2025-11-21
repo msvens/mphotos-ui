@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { photosService } from '@/lib/api/services';
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon, FaceSmileIcon, LockClosedIcon, LockOpenIcon, PencilIcon, PhotoIcon, TrashIcon, ArrowPathRoundedSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { IconButton } from '@/components/IconButton';
+import { PhotoEditDialog } from '@/components/photo/PhotoEditDialog';
 
 interface TouchState {
   xStart: number;
@@ -42,6 +43,7 @@ export function PhotoDeck({
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [nextImageId, setNextImageId] = useState<string | null>(null);
   const [isPrivate, setIsPrivate] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const touch: TouchState = { xStart: -1, xPos: -1, yStart: -1, yPos: -1 };
 
@@ -148,7 +150,14 @@ export function PhotoDeck({
   };
 
   const handleEdit = () => {
-    alert('Edit photo description');
+    setShowEditDialog(true);
+  };
+
+  const handleEditClose = (updatedPhoto?: PhotoMetadata) => {
+    setShowEditDialog(false);
+    if (updatedPhoto && onUpdatePhoto) {
+      onUpdatePhoto(updatedPhoto);
+    }
   };
 
   const handleDelete = () => {
@@ -245,7 +254,7 @@ export function PhotoDeck({
 
       {/* Edit Controls */}
       {editControls && (
-        <div className="fixed left-4 top-20 z-10 flex flex-col gap-2">
+        <div className="fixed left-4 top-20 flex flex-col gap-2">
           <IconButton
             icon={FaceSmileIcon}
             onClick={handleProfilePic}
@@ -355,6 +364,15 @@ export function PhotoDeck({
           </div>
         </div>
       </div>
+
+      {/* Edit Photo Dialog */}
+      {editControls && (
+        <PhotoEditDialog
+          open={showEditDialog}
+          photo={currentPhoto}
+          onClose={handleEditClose}
+        />
+      )}
     </div>
   );
-} 
+}

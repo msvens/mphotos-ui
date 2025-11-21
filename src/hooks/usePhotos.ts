@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PhotoMetadata } from '@/lib/api/types';
-import { photosService } from '@/lib/api/services/photos';
+import { photosService, albumsService } from '@/lib/api/services';
 import { useMPContext } from '@/context/MPContext';
 
 export function usePhotos() {
@@ -21,14 +21,16 @@ export function usePhotos() {
       
       let newPhotos: PhotoMetadata[];
       if (isUser) {
-        newPhotos = await photosService.getPhotos();
+        const photoList = await photosService.getPhotos();
+        newPhotos = photoList.photos;
       } else {
         if (!uxConfig.photoStreamAlbumId) {
           console.error('No photostream album ID configured');
           setHasMore(false);
           return;
         }
-        newPhotos = await photosService.getAlbumPhotos(uxConfig.photoStreamAlbumId);
+        const albumPhotoList = await albumsService.getAlbumPhotos(uxConfig.photoStreamAlbumId);
+        newPhotos = albumPhotoList.photos;
       }
       
       console.log('Received photos:', newPhotos);
