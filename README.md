@@ -310,6 +310,24 @@ The `Section` component provides consistent vertical spacing between major conte
 
 This system ensures consistent vertical rhythm throughout the application while maintaining flexibility for different content types and hierarchies.
 
+## Known Issues / Technical Debt
+
+### Z-Index Stacking Context Issue
+
+The edit controls in `PhotoDeck.tsx` currently have no `z-index` to avoid a stacking context conflict with the toast notification system.
+
+**Background:** Fixed positioned elements with `z-index` create new stacking contexts. When the edit controls had `z-10`, the toast (with `z-[9999]`) couldn't appear above them due to DOM order - sibling stacking contexts compete by DOM order, not z-index values.
+
+**Current workaround:** Removed `z-index` from edit controls.
+
+**TODO:** Implement a proper z-index management system (e.g., CSS custom properties or a z-index scale) to handle overlapping fixed elements consistently across the app.
+
+**Files affected:**
+- `src/components/photodeck/PhotoDeck.tsx` - Edit controls
+- `src/context/ToastContext.tsx` - Toast container
+
+---
+
 ## Getting Started
 
 First, run the development server:

@@ -1,15 +1,21 @@
 'use client';
 
-import { ChangeEvent, ReactNode } from 'react';
+import { useState, useRef, useEffect } from 'react';
+
+export interface SelectOption {
+  value: string;
+  label: string;
+}
 
 export interface SelectProps {
   id?: string;
   label?: string;
-  value: string | number;
-  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  value: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
   fullWidth?: boolean;
   margin?: 'none' | 'dense' | 'normal';
-  children: ReactNode;
+  placeholder?: string;
 }
 
 export function Select({
@@ -17,10 +23,14 @@ export function Select({
   label,
   value,
   onChange,
+  options,
   fullWidth = false,
   margin = 'none',
-  children,
+  placeholder = 'Select...',
 }: SelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const marginClass = {
     none: '',
     dense: 'mt-2',
@@ -29,8 +39,29 @@ export function Select({
 
   const widthClass = fullWidth ? 'w-full' : '';
 
+  // Find the label for the current value
+  const selectedOption = options.find(opt => opt.value === value);
+  const displayText = selectedOption?.label || placeholder;
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelect = (optionValue: string) => {
+    onChange(optionValue);
+    setIsOpen(false);
+  };
+
   return (
-    <div className={`${marginClass} ${widthClass}`}>
+    <div className={`${marginClass} ${widthClass}`} ref={containerRef}>
       {label && (
         <label
           htmlFor={id}
@@ -39,25 +70,67 @@ export function Select({
           {label}
         </label>
       )}
-      <select
-        id={id}
-        value={value}
-        onChange={onChange}
-        className={`
-          ${widthClass}
-          px-3 py-2
-          bg-transparent
-          border border-mui-divider
-          rounded
-          text-mui-text-primary
-          focus:outline-none
-          focus:border-mui-primary-main
-          hover:border-mui-text-primary
-          cursor-pointer
-        `}
-      >
-        {children}
-      </select>
+      <div className="relative">
+        {/* Select trigger */}
+        <button
+          id={id}
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className={`
+            ${widthClass}
+            pl-3 pr-10 py-2
+            bg-transparent
+            border border-mui-divider
+            rounded
+            text-mui-text-primary
+            text-left
+            focus:outline-none
+            focus:border-mui-primary-main
+            hover:border-mui-text-primary
+            cursor-pointer
+          `}
+        >
+          {displayText}
+        </button>
+
+        {/* Dropdown arrow */}
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          <svg
+            className={`w-4 h-4 text-mui-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+
+        {/* Dropdown menu */}
+        {isOpen && (
+          <div className="absolute z-50 w-full mt-1 bg-[#424242] border border-mui-divider rounded shadow-lg max-h-60 overflow-auto">
+            {options.map((option) => (
+              <div
+                key={option.value}
+                onClick={() => handleSelect(option.value)}
+                className={`
+                  px-3 py-2 cursor-pointer
+                  ${option.value === value
+                    ? 'bg-gray-600 text-white'
+                    : 'text-mui-text-primary hover:bg-gray-500'
+                  }
+                `}
+              >
+                {option.label}
+              </div>
+            ))}
+            {options.length === 0 && (
+              <div className="px-3 py-2 text-mui-text-secondary">
+                No options available
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

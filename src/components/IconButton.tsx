@@ -1,4 +1,5 @@
 import { ComponentType, SVGProps } from 'react';
+import { Tooltip, TooltipPlacement } from './Tooltip';
 
 type IconButtonSize = 'small' | 'medium' | 'large' | 'nav';
 
@@ -8,6 +9,7 @@ interface IconButtonProps {
   size?: IconButtonSize;
   disabled?: boolean;
   title?: string;
+  tooltipPlacement?: TooltipPlacement;
   className?: string;
   iconClassName?: string;
 }
@@ -37,16 +39,16 @@ export function IconButton({
   size = 'medium',
   disabled = false,
   title,
+  tooltipPlacement,
   className = '',
   iconClassName = ''
 }: IconButtonProps) {
   const { button: buttonSize, icon: iconSize } = sizeClasses[size];
-  
-  return (
+
+  const button = (
     <button
       onClick={onClick}
       disabled={disabled}
-      title={title}
       className={`flex items-center justify-center text-white rounded-full
         disabled:opacity-50 disabled:cursor-not-allowed
         hover:bg-mui-background-hover active:bg-white/20 active:scale-90
@@ -57,4 +59,10 @@ export function IconButton({
       <Icon className={`${iconSize} ${iconClassName}`} />
     </button>
   );
+
+  if (title) {
+    return <Tooltip title={title} placement={tooltipPlacement}>{button}</Tooltip>;
+  }
+
+  return button;
 } 

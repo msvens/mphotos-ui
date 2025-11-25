@@ -8,6 +8,8 @@ export interface UserService {
 
     getUserConfig(): Promise<UXConfig>;
 
+    updateUserConfig(config: UXConfig): Promise<UXConfig>;
+
     updateUser(name: string, bio: string, pic: string): Promise<User>;
 
     updateUserPic(pic: string): Promise<User>;
@@ -22,7 +24,11 @@ export const userService: UserService = {
     },
 
     async getUserConfig(): Promise<UXConfig> {
-        return api.get<UXConfig>(API_ENDPOINTS.userConfig + '/config');
+        return api.get<UXConfig>(API_ENDPOINTS.userConfig);
+    },
+
+    async updateUserConfig(config: UXConfig): Promise<UXConfig> {
+        return api.put<UXConfig>(API_ENDPOINTS.userConfig, config);
     },
 
     async updateUser(name: string, bio: string, pic: string) {

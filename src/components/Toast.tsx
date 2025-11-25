@@ -80,7 +80,7 @@ export function Toast({
       className={`${config.bg} text-white px-4 py-3 rounded shadow-xl flex items-center gap-3 min-w-[288px] max-w-[568px]`}
       style={{ animation: 'slideIn 0.3s ease-out' }}
     >
-      <Icon className={`w-6 h-6 ${config.iconColor} flex-shrink-0`} />
+        <Icon className={`w-6 h-6 ${config.iconColor} flex-shrink-0`} />
       <div className="flex-1 text-sm">{message}</div>
       <button
         onClick={() => onClose(id)}

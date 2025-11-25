@@ -2,9 +2,11 @@ import { PhotoMetadata } from '@/lib/api/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { photosService } from '@/lib/api/services';
-import { ArrowsPointingInIcon, ArrowsPointingOutIcon, FaceSmileIcon, LockClosedIcon, LockOpenIcon, PencilIcon, PhotoIcon, TrashIcon, ArrowPathRoundedSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ArrowsPointingInIcon, ArrowsPointingOutIcon, FaceSmileIcon, BookOpenIcon, ArchiveBoxIcon, PencilIcon, PhotoIcon, TrashIcon, ArrowPathRoundedSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { IconButton } from '@/components/IconButton';
 import { PhotoEditDialog } from '@/components/photo/PhotoEditDialog';
+import { useMPContext } from '@/context/MPContext';
+import { useToast } from '@/context/ToastContext';
 
 interface TouchState {
   xStart: number;
@@ -39,10 +41,12 @@ export function PhotoDeck({
   onDeletePhoto,
 }: PhotoDeckProps) {
   const router = useRouter();
+  const { uxConfig } = useMPContext();
+  const toast = useToast();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [nextImageId, setNextImageId] = useState<string | null>(null);
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [isInPhotostream, setIsInPhotostream] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const touch: TouchState = { xStart: -1, xPos: -1, yStart: -1, yPos: -1 };
@@ -140,9 +144,53 @@ export function PhotoDeck({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, [windowFullScreen]);
 
-  const handlePrivate = () => {
-    setIsPrivate(!isPrivate);
-    alert('Privacy toggled');
+  // Check if current photo is in photostream album
+  useEffect(() => {
+    if (!currentPhoto || !uxConfig.photoStreamAlbumId) return;
+
+    const checkPhotostream = async () => {
+      try {
+        const photoAlbums = await photosService.getPhotoAlbums(currentPhoto.id);
+        const inPhotostream = photoAlbums.some(album => album.id === uxConfig.photoStreamAlbumId);
+        setIsInPhotostream(inPhotostream);
+      } catch (error) {
+        console.error('Error checking photostream:', error);
+        setIsInPhotostream(false);
+      }
+    };
+
+    checkPhotostream();
+  }, [currentPhoto, uxConfig.photoStreamAlbumId]);
+
+  const handlePhotostreamToggle = async () => {
+    if (!currentPhoto || !uxConfig.photoStreamAlbumId) {
+      toast.error('Photostream album not configured');
+      return;
+    }
+
+    try {
+      // Get current albums
+      const photoAlbums = await photosService.getPhotoAlbums(currentPhoto.id);
+      const albumIds = photoAlbums.map(a => a.id);
+
+      let newAlbumIds: string[];
+      if (isInPhotostream) {
+        // Remove from photostream
+        newAlbumIds = albumIds.filter(id => id !== uxConfig.photoStreamAlbumId);
+        toast.success('Removed from photostream');
+      } else {
+        // Add to photostream
+        newAlbumIds = [...albumIds, uxConfig.photoStreamAlbumId];
+        toast.success('Added to photostream');
+      }
+
+      // Update photo albums
+      await photosService.setPhotoAlbums(currentPhoto.id, newAlbumIds);
+      setIsInPhotostream(!isInPhotostream);
+    } catch (error) {
+      console.error('Error toggling photostream:', error);
+      toast.error('Failed to update photostream');
+    }
   };
 
   const handleProfilePic = () => {
@@ -259,26 +307,31 @@ export function PhotoDeck({
             icon={FaceSmileIcon}
             onClick={handleProfilePic}
             title="Set as profile picture"
+            tooltipPlacement="bottom-right"
           />
           <IconButton
-            icon={isPrivate ? LockClosedIcon : LockOpenIcon}
-            onClick={handlePrivate}
-            title={isPrivate ? "Make public" : "Make private"}
+            icon={isInPhotostream ? BookOpenIcon : ArchiveBoxIcon}
+            onClick={handlePhotostreamToggle}
+            title={isInPhotostream ? "Remove from photostream" : "Add to photostream"}
+            tooltipPlacement="bottom-right"
           />
           <IconButton
             icon={PencilIcon}
             onClick={handleEdit}
-            title="Edit photo description"
+            title="Edit photo metadata"
+            tooltipPlacement="bottom-right"
           />
           <IconButton
             icon={ArrowPathRoundedSquareIcon}
             onClick={() => alert('Crop/Rotate photo')}
-            title="Crop and rotate photo"
+            title="Crop/rotate photo"
+            tooltipPlacement="bottom-right"
           />
           <IconButton
             icon={TrashIcon}
             onClick={handleDelete}
             title="Delete photo"
+            tooltipPlacement="bottom-right"
           />
         </div>
       )}
@@ -289,6 +342,7 @@ export function PhotoDeck({
           icon={windowFullScreen ? (showFullscreen ? ArrowsPointingInIcon : ArrowsPointingOutIcon) : ArrowsPointingOutIcon}
           onClick={handleFullscreen}
           title={windowFullScreen ? (showFullscreen ? "Exit fullscreen" : "Enter fullscreen") : "Enter fullscreen"}
+          tooltipPlacement="bottom-left"
         />
       </div>
 
