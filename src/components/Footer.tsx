@@ -19,7 +19,7 @@ function FooterLink({ href, children }: FooterLinkProps) {
 export function Footer() {
   return (
     <footer className="w-full">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-center items-center">
+      <div className="max-w-7xl mx-auto px-4 pt-12 pb-4 flex justify-center items-center">
         <div className="flex-1" />
         <FooterLink href="/about">About</FooterLink>
         <FooterLink href="/resume">Resume</FooterLink>

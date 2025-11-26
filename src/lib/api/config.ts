@@ -55,7 +55,7 @@ export type ApiEndpoints = typeof API_ENDPOINTS;
 
 export interface RequestConfig extends Omit<RequestInit, 'body'> {
     params?: Record<string, string>;
-    body?: any;
+    body?: unknown;
 }
 
 export function createApiUrl(endpoint: string, config?: RequestConfig): string {

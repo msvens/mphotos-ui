@@ -1,10 +1,4 @@
-import type { ApiError as BackendApiError } from './types';
 import { createApiUrl, RequestConfig } from './config';
-
-interface MPhotosResponse<T> {
-  error?: BackendApiError;
-  data?: T;
-}
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -46,10 +40,10 @@ export async function apiRequest<T>(
   try {
     const response = await fetch(url, {
       method,
-      ...(config?.body && {
+      ...(config?.body ? {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config.body)
-      })
+      } : {})
     });
 
     if (!response.ok) {

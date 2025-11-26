@@ -3,7 +3,6 @@
 import { PhotoMetadata } from '@/lib/api/types';
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { photosService } from '@/lib/api/services';
 
 export interface PhotoGridProps {

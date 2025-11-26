@@ -1,4 +1,4 @@
-import { Camera, PhotoMetadata } from '../types';
+import { Camera } from '../types';
 import { API_ENDPOINTS } from '../config';
 import { api } from '../client';
 

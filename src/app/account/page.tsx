@@ -7,18 +7,19 @@ import { Profile } from '@/components/account/Profile';
 import { Logout } from '@/components/account/Logout';
 import { GoogleDrive } from '@/components/account/GoogleDrive';
 import { UxConfig } from '@/components/account/UxConfig';
-import { Divider } from "@/components/Divider";
+import { PageSpacing } from '@/components/layout/PageSpacing';
+import { SideMenu, MenuItem } from '@/components/SideMenu';
 
 const PROFILE = "profile";
 const DRIVE = "drive";
 const UXCONFIG = "uxconfig";
 const LOGOUT = "logout";
 
-const MenuItems = [
-  { id: PROFILE, name: "Profile", href: `/account/${PROFILE}` },
-  { id: DRIVE, name: "Google Drive", href: `/account/${DRIVE}` },
-  { id: UXCONFIG, name: "UX Config", href: `/account/${UXCONFIG}` },
-  { id: LOGOUT, name: "Logout", href: `/account/${LOGOUT}` },
+const MenuItems: MenuItem[] = [
+  { id: PROFILE, name: "Profile" },
+  { id: DRIVE, name: "Google Drive" },
+  { id: UXCONFIG, name: "UX Config" },
+  { id: LOGOUT, name: "Logout" },
 ];
 
 export default function Account() {
@@ -44,41 +45,23 @@ export default function Account() {
 
   // Show authenticated account interface with navigation
   return (
-    <div className="flex gap-8">
-      {/* Left Side Navigation Menu */}
-      <div className="w-64 flex-shrink-0">
-        <div className="sticky top-24">
-          <div className="bg-mui-background-paper border border-mui-divider rounded-lg p-4">
-            <h2 className="text-lg font-medium mb-4 text-mui-text-primary">Account Settings</h2>
-            <nav className="space-y-2">
-              {MenuItems.map((item) => {
-                const isActive = activeSection === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveSection(item.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-mui-primary text-white'
-                        : 'text-mui-text-secondary hover:text-mui-text-primary hover:bg-mui-background-hover'
-                    }`}
-                  >
-                    {item.name}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
+    <>
+      <PageSpacing />
+      <div className="flex flex-col sm:flex-row">
+        <SideMenu
+          items={MenuItems}
+          activeItem={activeSection}
+          onItemChange={setActiveSection}
+        />
+
+        {/* Right Side Content */}
+        <div className="flex-1 pl-4 pr-8">
+          {activeSection === PROFILE && <Profile />}
+          {activeSection === DRIVE && <GoogleDrive />}
+          {activeSection === UXCONFIG && <UxConfig />}
+          {activeSection === LOGOUT && <Logout />}
         </div>
       </div>
-
-      {/* Right Side Content */}
-      <div className="flex-1">
-        {activeSection === PROFILE && <Profile />}
-        {activeSection === DRIVE && <GoogleDrive />}
-        {activeSection === UXCONFIG && <UxConfig />}
-        {activeSection === LOGOUT && <Logout />}
-      </div>
-    </div>
+    </>
   );
 } 

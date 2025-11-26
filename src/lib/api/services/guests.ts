@@ -1,6 +1,4 @@
 import { Guest } from '../types';
-import { API_ENDPOINTS } from '../config';
-import { api } from '../client';
 
 export interface GuestsService {
   // Guest management operations (to be implemented when needed)
@@ -18,27 +16,27 @@ export const guestsService: GuestsService = {
     throw new Error('Guest functionality not yet implemented');
   },
 
-  async getGuest(email: string) {
+  async getGuest() {
     // TODO: Implement when backend endpoints are ready
     throw new Error('Guest functionality not yet implemented');
   },
 
-  async createGuest(guest: Partial<Guest>) {
+  async createGuest() {
     // TODO: Implement when backend endpoints are ready
     throw new Error('Guest functionality not yet implemented');
   },
 
-  async updateGuest(email: string, guest: Partial<Guest>) {
+  async updateGuest() {
     // TODO: Implement when backend endpoints are ready
     throw new Error('Guest functionality not yet implemented');
   },
 
-  async deleteGuest(email: string) {
+  async deleteGuest() {
     // TODO: Implement when backend endpoints are ready
     throw new Error('Guest functionality not yet implemented');
   },
 
-  async verifyGuest(email: string, token: string) {
+  async verifyGuest() {
     // TODO: Implement when backend endpoints are ready
     throw new Error('Guest functionality not yet implemented');
   },

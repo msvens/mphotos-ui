@@ -20,7 +20,7 @@ export function Login() {
     try {
       await login(password);
       // Context will automatically update the UI
-    } catch (error) {
+    } catch {
       setLoginError('Incorrect password');
     } finally {
       setIsLoggingIn(false);

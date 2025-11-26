@@ -107,8 +107,8 @@ export default function AboutPage() {
       </ul>
 
       <Paragraph>
-        mphotos is designed to be self-hosted, giving you full control over your photo collection 
-        and data. It's perfect for individuals and families who want to maintain their own photo 
+        mphotos is designed to be self-hosted, giving you full control over your photo collection
+        and data. It&apos;s perfect for individuals and families who want to maintain their own photo
         gallery without relying on third-party services.
       </Paragraph>
 

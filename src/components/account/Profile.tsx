@@ -27,7 +27,7 @@ export function Profile() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8O">
       {/* Debug Info */}
       <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
         <p className="text-blue-600 text-sm">

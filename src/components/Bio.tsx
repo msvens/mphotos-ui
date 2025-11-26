@@ -2,9 +2,7 @@
 
 import { useMPContext } from '@/context/MPContext';
 import { Button } from './Button';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Divider } from './Divider';
 
 function getImageSize(isLarge: boolean) {
   return isLarge ? 'w-32 h-32' : 'w-16 h-16';

@@ -2,7 +2,7 @@ import { PhotoMetadata } from '@/lib/api/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { photosService } from '@/lib/api/services';
-import { ArrowsPointingInIcon, ArrowsPointingOutIcon, FaceSmileIcon, BookOpenIcon, ArchiveBoxIcon, PencilIcon, PhotoIcon, TrashIcon, ArrowPathRoundedSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ArrowsPointingInIcon, ArrowsPointingOutIcon, FaceSmileIcon, BookOpenIcon, ArchiveBoxIcon, PencilIcon, TrashIcon, ArrowPathRoundedSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { IconButton } from '@/components/IconButton';
 import { PhotoEditDialog } from '@/components/photo/PhotoEditDialog';
 import { useMPContext } from '@/context/MPContext';
@@ -36,9 +36,7 @@ export function PhotoDeck({
   searchQuery,
   editControls = false,
   windowFullScreen,
-  onClearSearchQuery,
   onUpdatePhoto,
-  onDeletePhoto,
 }: PhotoDeckProps) {
   const router = useRouter();
   const { uxConfig } = useMPContext();
@@ -107,22 +105,21 @@ export function PhotoDeck({
   };
 
   const handleFullscreen = () => {
-    
     if (windowFullScreen) {
       // Use browser fullscreen API
       try {
         if (!document.fullscreenElement) {
           document.documentElement.requestFullscreen().then(() => {
-          }).catch((err) => {
+          }).catch(() => {
             // Fallback to local fullscreen if browser fullscreen fails
             setShowFullscreen(true);
           });
         } else {
           document.exitFullscreen().then(() => {
-          }).catch((err) => {
+          }).catch(() => {
           });
         }
-      } catch (err) {
+      } catch {
         // Fallback to local fullscreen
         setShowFullscreen(!showFullscreen);
       }

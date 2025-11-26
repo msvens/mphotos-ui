@@ -133,7 +133,7 @@ export const MPContextProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           if (serverConfig.denseBottomBar !== undefined) config.denseBottomBar = serverConfig.denseBottomBar;
           if (serverConfig.windowFullScreen !== undefined) config.windowFullScreen = serverConfig.windowFullScreen;
         }
-      } catch (configError) {
+      } catch {
         // Use default config if server config fails
         config = defaultUXConfig;
       }
@@ -187,7 +187,7 @@ export const MPContextProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const logout = async () => {
     try {
-      const response = await authService.logout();
+      await authService.logout();
       // Logout successful - clear user data and set isUser to false
       setContextValue(prev => ({
         ...prev,
