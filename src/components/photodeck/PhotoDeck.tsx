@@ -1,12 +1,15 @@
 import { PhotoMetadata } from '@/lib/api/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { photosService } from '@/lib/api/services';
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon, FaceSmileIcon, BookOpenIcon, ArchiveBoxIcon, PencilIcon, TrashIcon, ArrowPathRoundedSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { IconButton } from '@/components/IconButton';
 import { PhotoEditDialog } from '@/components/photo/PhotoEditDialog';
 import { useMPContext } from '@/context/MPContext';
 import { useToast } from '@/context/ToastContext';
+import { colorScheme, alpha } from '@/lib/colors';
+import { modelToId } from '@/lib/utils';
 
 interface TouchState {
   xStart: number;
@@ -27,7 +30,7 @@ interface PhotoDeckProps {
   onDeletePhoto?: (p: PhotoMetadata) => void;
 }
 
-const IMAGE_CLASSES = "w-auto h-auto max-h-[calc(100vh-150px)] object-contain transition-all duration-300";
+const IMAGE_CLASSES = "w-auto h-auto max-h-[calc(100vh-200px)] object-contain transition-all duration-300";
 
 export function PhotoDeck({
   photos,
@@ -217,10 +220,16 @@ export function PhotoDeck({
     );
   }
 
+  // Get color scheme for photo background
+  const cs = colorScheme(uxConfig.photoBackgroundColor);
+
   // Fullscreen mode - photo takes up entire browser window (not system fullscreen)
   if (showFullscreen) {
     return (
-      <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        style={{ backgroundColor: cs.backgroundColor }}
+      >
         {/* Navigation Controls - Fullscreen Mode */}
         <div className="fixed left-4 top-1/2 -translate-y-1/2 z-10">
           <IconButton
@@ -233,6 +242,7 @@ export function PhotoDeck({
             }}
             disabled={currentIndex === 0}
             size="nav"
+            className="text-white"
           />
         </div>
         <div className="fixed right-4 top-1/2 -translate-y-1/2 z-10">
@@ -246,6 +256,7 @@ export function PhotoDeck({
             }}
             disabled={currentIndex === photos.length - 1}
             size="nav"
+            className="text-white"
           />
         </div>
 
@@ -255,6 +266,7 @@ export function PhotoDeck({
             icon={ArrowsPointingInIcon}
             onClick={handleFullscreen}
             title="Exit fullscreen"
+            className="text-white"
           />
         </div>
 
@@ -277,79 +289,121 @@ export function PhotoDeck({
     );
   }
 
+  // Determine padding based on photo borders setting
+  const photoBorders = uxConfig.photoBorders;
+  const getPadding = () => {
+    switch (photoBorders) {
+      case 'none':
+        return { paddingLeft: '0', paddingRight: '0', paddingTop: '0', paddingBottom: '0' };
+      case 'left-right':
+        return { paddingLeft: '5rem', paddingRight: '5rem', paddingTop: '0', paddingBottom: '0' };
+      case 'all':
+        return { paddingLeft: '5rem', paddingRight: '5rem', paddingTop: '2rem', paddingBottom: '2rem' };
+      default:
+        return { paddingLeft: '5rem', paddingRight: '5rem', paddingTop: '0', paddingBottom: '0' };
+    }
+  };
+
+  const padding = getPadding();
+  const hasVerticalControls = photoBorders !== 'none';
+
   return (
     <div className="flex flex-col min-h-[calc(100vh-48px)]">
-      {/* Navigation Controls */}
-      <div className="fixed left-4 top-1/2 -translate-y-1/2 z-10">
-        <IconButton
-          icon={ChevronLeftIcon}
-          onClick={() => navigateToPhoto(currentIndex - 1)}
-          disabled={currentIndex === 0}
-          size="nav"
-        />
-      </div>
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-10">
-        <IconButton
-          icon={ChevronRightIcon}
-          onClick={() => navigateToPhoto(currentIndex + 1)}
-          disabled={currentIndex === photos.length - 1}
-          size="nav"
-        />
-      </div>
-
-      {/* Edit Controls */}
-      {editControls && (
-        <div className="fixed left-4 top-20 flex flex-col gap-2">
-          <IconButton
-            icon={FaceSmileIcon}
-            onClick={handleProfilePic}
-            title="Set as profile picture"
-            tooltipPlacement="bottom-right"
-          />
-          <IconButton
-            icon={isInPhotostream ? BookOpenIcon : ArchiveBoxIcon}
-            onClick={handlePhotostreamToggle}
-            title={isInPhotostream ? "Remove from photostream" : "Add to photostream"}
-            tooltipPlacement="bottom-right"
-          />
-          <IconButton
-            icon={PencilIcon}
-            onClick={handleEdit}
-            title="Edit photo metadata"
-            tooltipPlacement="bottom-right"
-          />
-          <IconButton
-            icon={ArrowPathRoundedSquareIcon}
-            onClick={() => alert('Crop/Rotate photo')}
-            title="Crop/rotate photo"
-            tooltipPlacement="bottom-right"
-          />
-          <IconButton
-            icon={TrashIcon}
-            onClick={handleDelete}
-            title="Delete photo"
-            tooltipPlacement="bottom-right"
-          />
-        </div>
-      )}
-
-      {/* Fullscreen Control */}
-      <div className="fixed right-4 top-20 z-10">
-        <IconButton
-          icon={windowFullScreen ? (showFullscreen ? ArrowsPointingInIcon : ArrowsPointingOutIcon) : ArrowsPointingOutIcon}
-          onClick={handleFullscreen}
-          title={windowFullScreen ? (showFullscreen ? "Exit fullscreen" : "Enter fullscreen") : "Enter fullscreen"}
-          tooltipPlacement="bottom-left"
-        />
-      </div>
-
-      {/* Photo Display */}
-      <div 
-        className="flex items-center justify-center px-16 pt-8 pb-2"
+      {/* Photo Display with Background Color - Full Width */}
+      <div
+        className="relative flex items-center justify-center"
+        style={{
+          backgroundColor: cs.backgroundColor,
+          width: '100vw',
+          marginLeft: 'calc(-50vw + 50%)',
+          ...padding,
+          minHeight: 'calc(100vh - 200px)',
+        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Navigation Controls */}
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2">
+          <IconButton
+            icon={ChevronLeftIcon}
+            onClick={() => navigateToPhoto(currentIndex - 1)}
+            disabled={currentIndex === 0}
+            size="nav"
+            background={alpha(cs.backgroundColor, 0.5)}
+            className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
+          />
+        </div>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2">
+          <IconButton
+            icon={ChevronRightIcon}
+            onClick={() => navigateToPhoto(currentIndex + 1)}
+            disabled={currentIndex === photos.length - 1}
+            size="nav"
+            background={alpha(cs.backgroundColor, 0.5)}
+            className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
+          />
+        </div>
+
+        {/* Edit Controls */}
+        {editControls && (
+          <div
+            className={`absolute ${hasVerticalControls ? 'left-4 top-4 flex-col' : 'left-4 top-4 flex-row'} flex gap-2 p-2 z-10`}
+          >
+            <IconButton
+              icon={FaceSmileIcon}
+              onClick={handleProfilePic}
+              title="Set as profile picture"
+              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              background={alpha(cs.backgroundColor, 0.5)}
+              className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
+            />
+            <IconButton
+              icon={isInPhotostream ? BookOpenIcon : ArchiveBoxIcon}
+              onClick={handlePhotostreamToggle}
+              title={isInPhotostream ? "Remove from photostream" : "Add to photostream"}
+              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              background={alpha(cs.backgroundColor, 0.5)}
+              className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
+            />
+            <IconButton
+              icon={PencilIcon}
+              onClick={handleEdit}
+              title="Edit photo metadata"
+              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              background={alpha(cs.backgroundColor, 0.5)}
+              className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
+            />
+            <IconButton
+              icon={ArrowPathRoundedSquareIcon}
+              onClick={() => alert('Crop/Rotate photo')}
+              title="Crop/rotate photo"
+              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              background={alpha(cs.backgroundColor, 0.5)}
+              className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
+            />
+            <IconButton
+              icon={TrashIcon}
+              onClick={handleDelete}
+              title="Delete photo"
+              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              background={alpha(cs.backgroundColor, 0.5)}
+              className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
+            />
+          </div>
+        )}
+
+        {/* Fullscreen Control */}
+        <div className="absolute right-4 top-4 z-10 p-2">
+          <IconButton
+            icon={windowFullScreen ? (showFullscreen ? ArrowsPointingInIcon : ArrowsPointingOutIcon) : ArrowsPointingOutIcon}
+            onClick={handleFullscreen}
+            title={windowFullScreen ? (showFullscreen ? "Exit fullscreen" : "Enter fullscreen") : "Enter fullscreen"}
+            tooltipPlacement="bottom-left"
+            background={alpha(cs.backgroundColor, 0.5)}
+            className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
+          />
+        </div>
         <div className="relative w-full flex items-center justify-center">
           <img
             key={`current-${currentPhoto.id}`}
@@ -382,21 +436,21 @@ export function PhotoDeck({
               {/* Like Section */}
               <div className="flex items-center space-x-3">
                 <div className="cursor-pointer hover:scale-110 transition-transform">
-                  <svg className="w-6 h-6 text-white hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <svg className="w-6 h-6 text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                 </div>
-                <span className="text-sm text-white">be the first one to like this</span>
+                <span className="text-sm text-gray-900 dark:text-white">be the first one to like this</span>
               </div>
 
               {/* Comment Section */}
               <div className="relative">
-                <input 
+                <input
                   type="text"
-                  className="w-full px-3 py-2 pr-20 border border-gray-300 rounded bg-transparent focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm text-white placeholder-gray-400"
+                  className="w-full px-3 py-2 pr-20 border border-gray-200 dark:border-gray-700 rounded bg-transparent focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
                   placeholder="Share your thoughts..."
                 />
-                <button className="absolute right-1 top-1 px-3 py-1 text-white hover:text-gray-200 transition-colors">
+                <button className="absolute right-1 top-1 px-3 py-1 text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
                   POST
                 </button>
               </div>
@@ -404,12 +458,46 @@ export function PhotoDeck({
 
             {/* Right Column - Photo Details */}
             <div className="space-y-3">
-              <h3 className="text-sm font-bold text-white">Sunset at Golden Gate Bridge</h3>
-              <div className="text-sm text-white space-y-1">
-                <div>Canon EOS R5</div>
-                <div>RF 24-70mm f/2.8L IS USM</div>
-                <div>35mm • f/8 • ISO 100 • 1/125s</div>
-                <div>March 15, 2024</div>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                {currentPhoto.title || 'Untitled'}
+              </h3>
+              <div className="text-sm text-gray-900 dark:text-white space-y-1">
+                {/* Date */}
+                {currentPhoto.originalDate && (
+                  <div>Taken on {new Date(currentPhoto.originalDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}.</div>
+                )}
+
+                {/* Camera */}
+                {currentPhoto.cameraModel && (
+                  <div>
+                    Camera: <Link
+                      href={`/camera/${modelToId(currentPhoto.cameraModel)}`}
+                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      {currentPhoto.cameraModel}
+                    </Link>
+                  </div>
+                )}
+
+                {/* Lens */}
+                {currentPhoto.lensModel && (
+                  <div>Lens: {currentPhoto.lensModel}</div>
+                )}
+
+                {/* Settings/Exposure Info */}
+                {(currentPhoto.fNumber || currentPhoto.iso || currentPhoto.exposure) && (
+                  <div>
+                    Settings: {[
+                      currentPhoto.fNumber && `f${currentPhoto.fNumber}`,
+                      currentPhoto.iso && `iso${currentPhoto.iso}`,
+                      currentPhoto.exposure && currentPhoto.exposure
+                    ].filter(Boolean).join(', ')}.
+                  </div>
+                )}
               </div>
             </div>
           </div>

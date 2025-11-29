@@ -2,6 +2,8 @@ import { Camera } from '../types';
 import { API_ENDPOINTS } from '../config';
 import { api } from '../client';
 
+export type CameraImageSize = '48' | '192' | '512' | 'original';
+
 export interface CamerasService {
   getCameras(): Promise<Camera[]>;
   getCamera(name: string): Promise<Camera>;
@@ -9,7 +11,8 @@ export interface CamerasService {
   updateCamera(name: string, camera: Partial<Camera>): Promise<Camera>;
   deleteCamera(name: string): Promise<void>;
   uploadCameraImage(name: string, file: File): Promise<Camera>;
-  getCameraImageUrl(name: string): string;
+  updateCameraImageUrl(name: string, url: string): Promise<Camera>;
+  getCameraImageUrl(camera: Camera, size?: CameraImageSize): string;
 }
 
 export const camerasService: CamerasService = {
@@ -39,7 +42,17 @@ export const camerasService: CamerasService = {
     return api.post<Camera>(API_ENDPOINTS.cameraImage(name), formData);
   },
 
-  getCameraImageUrl(name: string) {
-    return API_ENDPOINTS.cameraImage(name);
+  async updateCameraImageUrl(name: string, url: string) {
+    return api.put<Camera>(API_ENDPOINTS.cameraImage(name), { url });
+  },
+
+  getCameraImageUrl(camera: Camera, size: CameraImageSize = 'original') {
+    if (camera.image === '') {
+      return '/camera-outline.png';
+    }
+    if (size === 'original') {
+      return API_ENDPOINTS.cameraImage(camera.id);
+    }
+    return `${API_ENDPOINTS.cameraImage(camera.id)}/${size}`;
   },
 }; 
