@@ -36,7 +36,7 @@ export function Login() {
     <div className="space-y-8 max-w-md mx-auto">
       <div className="text-center">
         <h1 className="text-2xl font-light mb-4">Login</h1>
-        <p className="text-mui-text-secondary">Login to edit settings</p>
+        <p className="text-gray-600 dark:text-gray-400">Login to edit settings</p>
       </div>
 
       <Divider />
@@ -49,7 +49,7 @@ export function Login() {
         )}
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-mui-text-primary">
+          <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
             Password
           </label>
           <input
@@ -57,16 +57,16 @@ export function Login() {
             value={password}
             onChange={handlePasswordChange}
             onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-            className="w-full p-3 rounded-lg border border-mui-divider bg-transparent text-mui-text-primary placeholder-mui-text-secondary focus:outline-none focus:ring-2 focus:ring-mui-primary focus:border-transparent"
+            className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter your password"
             disabled={isLoggingIn}
           />
         </div>
 
-        <Button 
+        <Button
           onClick={handleLogin}
-          color="primary" 
-          variant="contained"
+          color="primary"
+          variant="outlined"
           fullWidth
           disabled={isLoggingIn || !password.trim()}
           className="h-12"

@@ -13,14 +13,14 @@ import { Button } from '../Button';
 
 function AddAlbumCard({ onAdd }: { onAdd: () => void }) {
   return (
-    <div className="flex flex-col bg-mui-background-paper rounded overflow-hidden">
+    <div className="flex flex-col bg-white dark:bg-dark-bg rounded overflow-hidden">
       <img
         src="/photo-album.jpg"
         alt="Add Album"
         className="w-full h-48 object-cover"
       />
       <div className="p-4 flex-grow flex flex-col justify-between">
-        <p className="text-sm text-mui-text-secondary mb-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
           Create a new Photo album. After you can add photos to it from the photo view
         </p>
         <Button variant="text" onClick={onAdd} className="self-start">
@@ -51,7 +51,7 @@ function AlbumCard({ album, isAdmin, onEdit, onDelete }: AlbumCardProps) {
   };
 
   return (
-    <div className="flex flex-col bg-mui-background-paper rounded overflow-hidden">
+    <div className="flex flex-col bg-white dark:bg-dark-bg rounded overflow-hidden">
       <Link href={getAlbumLink()} className="block">
         <img
           src={getCoverImage()}
@@ -59,10 +59,10 @@ function AlbumCard({ album, isAdmin, onEdit, onDelete }: AlbumCardProps) {
           className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
         />
         <div className="p-4">
-          <h3 className="text-lg font-medium text-mui-text-primary mb-1">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
             {album.name}
           </h3>
-          <p className="text-sm text-mui-text-secondary">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {album.description}
           </p>
         </div>
@@ -71,14 +71,14 @@ function AlbumCard({ album, isAdmin, onEdit, onDelete }: AlbumCardProps) {
         <div className="px-4 pb-4 flex gap-2">
           <button
             onClick={() => onEdit(album)}
-            className="p-2 text-mui-text-secondary hover:text-mui-text-primary transition-colors"
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             aria-label="Edit Album"
           >
             <PencilIcon className="w-5 h-5" />
           </button>
           <button
             onClick={() => onDelete(album)}
-            className="p-2 text-mui-text-secondary hover:text-mui-text-primary transition-colors"
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             aria-label="Delete Album"
           >
             <TrashIcon className="w-5 h-5" />

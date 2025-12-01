@@ -10,15 +10,16 @@ import { TextField } from '@/components/TextField';
 import { Select } from '@/components/Select';
 import { RadioGroup } from '@/components/RadioGroup';
 import { ToggleSwitch } from '@/components/ToggleSwitch';
+import { Button } from '@/components/Button';
 import { useToast } from '@/context/ToastContext';
 
 // Color constants matching the old implementation
 const Colors = {
-  White: '#fff',
+  White: '#ffffff',
   Light: '#fafafa',
   Grey: '#bdbdbd',
   Dark: '#303030',
-  Black: '#000000',
+  Black: '#121212',  // Match dark theme background
 };
 
 const gridSpacings = [
@@ -114,16 +115,6 @@ export function UxConfig() {
         fullWidth
       />
 
-      {/* Load Items */}
-      <TextField
-        id="loadItems"
-        label="Load Items"
-        value={loadItems.toString()}
-        onChange={(e) => setLoadItems(Number(e.target.value) || 1)}
-        type="number"
-        fullWidth
-      />
-
       {/* Photostream Album */}
       <Select
         id="photoStreamAlbum"
@@ -196,12 +187,11 @@ export function UxConfig() {
 
       {/* Save Button */}
       <div className="pt-4">
-        <button
+        <Button
           onClick={handleUpdate}
-          className="px-6 py-2 border border-gray-500 rounded text-white hover:bg-gray-700 transition-colors"
         >
-          Save Config
-        </button>
+          SAVE CONFIG
+        </Button>
       </div>
     </div>
   );

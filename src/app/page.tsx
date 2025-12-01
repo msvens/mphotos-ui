@@ -7,7 +7,7 @@ import { PhotoMetadata } from '@/lib/api/types';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { Bio } from '@/components/Bio';
 import { Switch } from '@/components/Switch';
-import { LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline';
+import { BookOpenIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import { Section } from '@/components/Section';
 import { PageSpacing } from '@/components/layout/PageSpacing';
 
@@ -29,11 +29,11 @@ export default function Home() {
 
       try {
         if (uxConfig.photoStreamAlbumId) {
-          // Fetch photostream photos for dimming logic
+          // Fetch photostream photos
           const streamPhotoList = await albumsService.getAlbumPhotos(uxConfig.photoStreamAlbumId);
           setPhotostreamPhotos(streamPhotoList.photos);
 
-          // Always start with photostream photos (default view)
+          // Default view: show photostream
           setPhotos(streamPhotoList.photos);
         } else {
           // Fallback to all photos if no photostream album is configured
@@ -48,24 +48,65 @@ export default function Home() {
     fetchPhotos();
   }, [isLoading, uxConfig.photoStreamAlbumId]);
 
-  // Separate effect for fetching all photos when needed
+  // Fetch all photos when admin toggles to show all
   useEffect(() => {
-    if (isUser && !showPhotostream && uxConfig.photoStreamAlbumId && photostreamPhotos.length > 0) {
-      photosService.getPhotos()
-        .then(photoList => setPhotos(photoList.photos))
-        .catch(error => {
+    async function loadAllPhotos() {
+      if (isUser && !showPhotostream && uxConfig.photoStreamAlbumId && photostreamPhotos.length > 0) {
+        try {
+          const photoList = await photosService.getPhotos();
+          setPhotos(photoList.photos);
+        } catch (error) {
           console.error('Error fetching all photos:', error);
           setPhotos(photostreamPhotos);
-        });
+        }
+      } else if (showPhotostream && photostreamPhotos.length > 0) {
+        // When switching back to photostream
+        setPhotos(photostreamPhotos);
+      }
     }
+
+    loadAllPhotos();
   }, [isUser, showPhotostream, uxConfig.photoStreamAlbumId, photostreamPhotos]);
 
   // Create a Set of photostream photo IDs for efficient lookup
   const photostreamPhotoIds = new Set(photostreamPhotos.map(p => p.id));
 
   const handleIconClick = async (photo: PhotoMetadata) => {
+    if (!uxConfig.photoStreamAlbumId) {
+      console.error('Photostream album not configured');
+      return;
+    }
+
     const isInPhotostream = photostreamPhotoIds.has(photo.id);
-    alert(isInPhotostream ? 'Unlocked' : 'Locked');
+
+    try {
+      // Get current albums for this photo
+      const photoAlbums = await photosService.getPhotoAlbums(photo.id);
+      const albumIds = photoAlbums.map(a => a.id);
+
+      let newAlbumIds: string[];
+      if (isInPhotostream) {
+        // Remove from photostream
+        newAlbumIds = albumIds.filter(id => id !== uxConfig.photoStreamAlbumId);
+      } else {
+        // Add to photostream
+        newAlbumIds = [...albumIds, uxConfig.photoStreamAlbumId];
+      }
+
+      // Update photo albums
+      await photosService.setPhotoAlbums(photo.id, newAlbumIds);
+
+      // Update local state
+      if (isInPhotostream) {
+        // Remove from photostream list
+        setPhotostreamPhotos(prev => prev.filter(p => p.id !== photo.id));
+      } else {
+        // Add to photostream list
+        setPhotostreamPhotos(prev => [...prev, photo]);
+      }
+    } catch (error) {
+      console.error('Error toggling photostream:', error);
+    }
   };
 
   if (!mounted || isLoading) {
@@ -85,20 +126,13 @@ export default function Home() {
             <Bio />
           </Section>
         )}
-        
-        {isUser && (
+
+        {isUser && uxConfig.photoStreamAlbumId && (
           <Section>
             <div className="flex justify-center">
               <Switch
                 checked={showPhotostream}
-                onChange={(checked) => {
-                  setShowPhotostream(checked);
-                  if (checked) {
-                    // Switch to photostream photos (already loaded)
-                    setPhotos(photostreamPhotos);
-                  }
-                  // When switching to false, the useEffect will handle fetching all photos
-                }}
+                onChange={(checked) => setShowPhotostream(checked)}
                 label="Show Photostream"
               />
             </div>
@@ -106,7 +140,7 @@ export default function Home() {
         )}
 
         <Section>
-          <PhotoGrid 
+          <PhotoGrid
             photos={photos}
             columns={uxConfig.photoGridCols}
             spacing={uxConfig.photoGridSpacing}
@@ -117,12 +151,12 @@ export default function Home() {
               return isUser && !showPhotostream && !photostreamPhotoIds.has(photo.id);
             }}
             renderBottomIcon={isUser ? (photo) => {
-              // Admin-only: Show lock/unlock icons
+              // Admin-only: Show photostream icons
               const isInPhotostream = photostreamPhotoIds.has(photo.id);
               return isInPhotostream ? (
-                <LockOpenIcon className="w-6 h-6 text-white" />
+                <BookOpenIcon className="w-6 h-6 text-white" />
               ) : (
-                <LockClosedIcon className="w-6 h-6 text-white" />
+                <ArchiveBoxIcon className="w-6 h-6 text-white" />
               );
             } : undefined}
             onBottomIconClick={handleIconClick}

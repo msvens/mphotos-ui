@@ -38,13 +38,13 @@ export function TextField({
   const baseInputClasses = `
     px-3 py-2
     bg-transparent
-    border border-mui-divider
+    border border-gray-300 dark:border-gray-600
     rounded
-    text-mui-text-primary
-    placeholder:text-mui-text-secondary
+    text-gray-900 dark:text-white
+    placeholder:text-gray-600 dark:placeholder:text-gray-400
     focus:outline-none
-    focus:border-mui-primary-main
-    hover:border-mui-text-primary
+    focus:border-blue-500
+    hover:border-gray-900 dark:hover:border-white
     ${widthClass}
   `;
 
@@ -53,7 +53,7 @@ export function TextField({
       {label && (
         <label
           htmlFor={id}
-          className="block text-xs text-mui-text-secondary mb-1"
+          className="block text-xs text-gray-600 dark:text-gray-400 mb-1"
         >
           {label}
         </label>

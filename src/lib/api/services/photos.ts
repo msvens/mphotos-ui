@@ -5,10 +5,12 @@ import { api } from '../client';
 export interface PhotosService {
   getPhotos(): Promise<PhotoList>;
   getPagedPhotos(limit: number, offset: number): Promise<PhotoList>;
+  getPhotosByCameraModel(cameraModel: string): Promise<PhotoList>;
   getPhoto(id: string): Promise<PhotoMetadata>;
   updatePhoto(id: string, title: string, description: string, keywords: string): Promise<PhotoMetadata>;
   uploadLocalPhoto(file: File): Promise<PhotoMetadata>;
   deletePhoto(id: string, removeFiles: boolean): Promise<PhotoMetadata>;
+  deletePhotos(removeFiles: boolean): Promise<PhotoList>;
   setPhotoAlbums(photoId: string, albumIds: string[]): Promise<AffectedItems>;
   getPhotoAlbums(photoId: string): Promise<Album[]>;
   getThumbUrlId(id: string): string;
@@ -39,6 +41,16 @@ export const photosService: PhotosService = {
     }
   },
 
+  async getPhotosByCameraModel(cameraModel: string) {
+    const url = `${API_ENDPOINTS.photos}?cameraModel=${encodeURIComponent(cameraModel)}`;
+    try {
+      return await api.get<PhotoList>(url);
+    } catch (error) {
+      console.error('Error fetching photos by camera:', error);
+      return { length: 0, photos: [] };
+    }
+  },
+
   async getPhoto(id: string) {
     return api.get<PhotoMetadata>(API_ENDPOINTS.photo(id));
   },
@@ -63,6 +75,10 @@ export const photosService: PhotosService = {
 
   async deletePhoto(id: string, removeFiles: boolean) {
     return api.delete<PhotoMetadata>(API_ENDPOINTS.photo(id), { body: { removeFiles } });
+  },
+
+  async deletePhotos(removeFiles: boolean) {
+    return api.delete<PhotoList>(API_ENDPOINTS.photos, { body: { removeFiles } });
   },
 
   async setPhotoAlbums(photoId: string, albumIds: string[]) {

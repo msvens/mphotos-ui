@@ -9,7 +9,7 @@ export default function Guest() {
       {/* Header */}
       <div className="text-center">
         <h1 className="text-2xl font-light mb-4">Guest Book</h1>
-        <p className="text-mui-text-secondary">Leave a message or comment</p>
+        <p className="text-gray-600 dark:text-gray-400">Leave a message or comment</p>
       </div>
 
       <Divider />
@@ -22,14 +22,14 @@ export default function Guest() {
             <label className="block text-sm font-medium mb-1">Name</label>
             <input
               type="text"
-              className="w-full p-2 rounded border border-mui-divider bg-transparent"
+              className="w-full p-2 rounded border border-gray-200 dark:border-gray-700 bg-transparent"
               placeholder="Your name"
             />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Message</label>
             <textarea
-              className="w-full p-2 rounded border border-mui-divider bg-transparent"
+              className="w-full p-2 rounded border border-gray-200 dark:border-gray-700 bg-transparent"
               rows={4}
               placeholder="Write your message here..."
             />
@@ -47,12 +47,12 @@ export default function Guest() {
         <h2 className="text-2xl font-light mb-6">Recent Messages</h2>
         <div className="space-y-6">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="p-4 border border-mui-divider rounded-lg">
+            <div key={i} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-medium">Guest Name {i + 1}</h3>
-                <span className="text-sm text-mui-text-secondary">2 days ago</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">2 days ago</span>
               </div>
-              <p className="text-mui-text-secondary">
+              <p className="text-gray-600 dark:text-gray-400">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
                 tempor incididunt ut labore et dolore magna aliqua.
               </p>

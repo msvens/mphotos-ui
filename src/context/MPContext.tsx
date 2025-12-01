@@ -19,7 +19,7 @@ export interface Guest {
 export interface UXConfig {
   photoStreamAlbumId: string;
   photoGridCols: number;
-  photoItemsLoad: number;
+  photoItemsLoad: number; // DEPRECATED: No longer used, kept for backwards compatibility with old configs
   photoGridSpacing: number;
   showBio: boolean;
   photoBackgroundColor: string;
@@ -47,7 +47,7 @@ const defaultUXConfig: UXConfig = {
   photoItemsLoad: 30,
   photoGridSpacing: 1,
   showBio: true,
-  photoBackgroundColor: '#000000',
+  photoBackgroundColor: '#121212',  // Match dark theme background
   photoBorders: 'none',
   colorTheme: 'dark',
   denseTopBar: false,

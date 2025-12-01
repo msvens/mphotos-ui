@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import { useMPContext } from '@/context/MPContext';
+import { userService } from '@/lib/api/services/user';
+import { useToast } from '@/context/ToastContext';
 import { Divider } from "@/components/Divider";
 import { Button } from "@/components/Button";
 
 export function Profile() {
-  const { user, isUser } = useMPContext();
+  const { user, refreshAuth } = useMPContext();
+  const toast = useToast();
   const [name, setName] = useState(user.name || '');
   const [bio, setBio] = useState(user.bio || '');
   const [pic, setPic] = useState(user.pic || '');
@@ -21,77 +24,71 @@ export function Profile() {
     setPic(event.target.value);
   };
 
-  const handleSubmit = () => {
-    // TODO: Implement profile update
-    console.log('Update profile:', { name, bio, pic });
+  const handleSubmit = async () => {
+    try {
+      await userService.updateUser(name, bio, pic);
+      await refreshAuth(); // Refresh user data in context
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    }
   };
 
   return (
-    <div className="space-y-8O">
-      {/* Debug Info */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-        <p className="text-blue-600 text-sm">
-          <strong>Debug Info:</strong> isUser = {isUser.toString()}
-        </p>
-      </div>
-
+    <div className="space-y-8">
       <div className="text-center">
         <h1 className="text-2xl font-light mb-4">Profile</h1>
-        <p className="text-mui-text-secondary">Edit your profile information!</p>
-        <p className="text-blue-600 text-sm">
-          <strong>Debug Info:</strong> isUser = {isUser.toString()}
-        </p>
+        <p className="text-gray-600 dark:text-gray-400">Edit your profile information</p>
       </div>
 
       <Divider />
 
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium mb-2 text-mui-text-primary">
+          <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
             Name
           </label>
           <input
             type="text"
             value={name}
             onChange={handleNameChange}
-            className="w-full p-3 rounded-lg border border-mui-divider bg-transparent text-mui-text-primary placeholder-mui-text-secondary focus:outline-none focus:ring-2 focus:ring-mui-primary focus:border-transparent"
+            className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Your name"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-mui-text-primary">
+          <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
             Profile Picture
           </label>
           <input
             type="text"
             value={pic}
             onChange={handlePicChange}
-            className="w-full p-3 rounded-lg border border-mui-divider bg-transparent text-mui-text-primary placeholder-mui-text-secondary focus:outline-none focus:ring-2 focus:ring-mui-primary focus:border-transparent"
+            className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Profile picture URL"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-mui-text-primary">
+          <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
             Bio
           </label>
           <textarea
             value={bio}
             onChange={handleBioChange}
             rows={4}
-            className="w-full p-3 rounded-lg border border-mui-divider bg-transparent text-mui-text-primary placeholder-mui-text-secondary focus:outline-none focus:ring-2 focus:ring-mui-primary focus:border-transparent"
+            className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Tell us about yourself"
           />
         </div>
 
-        <Button 
+        <Button
           onClick={handleSubmit}
-          color="primary" 
-          variant="contained"
           className="h-12 px-8"
         >
-          Update Profile
+          UPDATE PROFILE
         </Button>
       </div>
     </div>

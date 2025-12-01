@@ -118,4 +118,34 @@ export interface ApiError {
 export type ApiResponse<T> = {
   data?: T;
   error?: ApiError;
+}
+
+export interface AuthUser {
+  authenticated: boolean;
+}
+
+export interface DriveFile {
+  id: string;
+  name: string;
+}
+
+export interface DriveFiles {
+  length: number;
+  files: DriveFile[];
+}
+
+export enum JobState {
+  SCHEDULED = 'SCHEDULED',
+  STARTED = 'STARTED',
+  FINISHED = 'FINISHED',
+  ABORTED = 'ABORTED',
+}
+
+export interface Job {
+  id: string;
+  state: JobState;
+  percent: number;
+  numFiles: number;
+  numProcessed: number;
+  error?: string;
 } 

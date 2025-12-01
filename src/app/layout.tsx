@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${roboto.className} bg-white dark:bg-mui-background-default`}>
+    <html lang="en">
+      <body className={`${roboto.className} bg-white dark:bg-dark-bg`}>
         <LayoutProvider>
           {children}
         </LayoutProvider>

@@ -130,7 +130,7 @@ export default function AlbumPage({ params }: AlbumPageProps) {
       <div className="max-w-[1024px] mx-auto">
         {/* Album Header */}
         <Section>
-          <h1 className="text-2xl font-light text-mui-text-primary">{album.name}</h1>
+          <h1 className="text-2xl font-light text-gray-900 dark:text-white">{album.name}</h1>
           {isUser && photos.length > 1 && (
             <button
               onClick={handleSaveOrdering}

@@ -22,7 +22,7 @@ export function ToggleSwitch({ id, checked, onChange, label }: ToggleSwitchProps
           }`}
         />
       </div>
-      {label && <span className="text-mui-text-primary">{label}</span>}
+      {label && <span className="text-gray-900 dark:text-white">{label}</span>}
     </label>
   );
 }

@@ -17,7 +17,7 @@ export function RadioGroup({ id, label, value, onChange, options }: RadioGroupPr
   return (
     <div id={id}>
       {label && (
-        <div className="text-mui-text-secondary text-sm mb-2">{label}</div>
+        <div className="text-gray-600 dark:text-gray-400 text-sm mb-2">{label}</div>
       )}
       <div className="space-y-2">
         {options.map((option) => (
@@ -32,7 +32,7 @@ export function RadioGroup({ id, label, value, onChange, options }: RadioGroupPr
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
               )}
             </div>
-            <span className="text-mui-text-primary">{option.label}</span>
+            <span className="text-gray-900 dark:text-white">{option.label}</span>
           </label>
         ))}
       </div>

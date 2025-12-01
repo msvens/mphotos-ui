@@ -65,7 +65,7 @@ export function Select({
       {label && (
         <label
           htmlFor={id}
-          className="block text-xs text-mui-text-secondary mb-1"
+          className="block text-xs text-gray-600 dark:text-gray-400 mb-1"
         >
           {label}
         </label>
@@ -80,13 +80,13 @@ export function Select({
             ${widthClass}
             pl-3 pr-10 py-2
             bg-transparent
-            border border-mui-divider
+            border border-gray-200 dark:border-gray-700
             rounded
-            text-mui-text-primary
+            text-gray-900 dark:text-white
             text-left
             focus:outline-none
-            focus:border-mui-primary-main
-            hover:border-mui-text-primary
+            focus:border-blue-500
+            hover:border-gray-900 dark:hover:border-white
             cursor-pointer
           `}
         >
@@ -96,7 +96,7 @@ export function Select({
         {/* Dropdown arrow */}
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
           <svg
-            className={`w-4 h-4 text-mui-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -107,7 +107,7 @@ export function Select({
 
         {/* Dropdown menu */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-[#424242] border border-mui-divider rounded shadow-lg max-h-60 overflow-auto">
+          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[#424242] border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-60 overflow-auto">
             {options.map((option) => (
               <div
                 key={option.value}
@@ -116,7 +116,7 @@ export function Select({
                   px-3 py-2 cursor-pointer
                   ${option.value === value
                     ? 'bg-gray-600 text-white'
-                    : 'text-mui-text-primary hover:bg-gray-500'
+                    : 'text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
                   }
                 `}
               >
@@ -124,7 +124,7 @@ export function Select({
               </div>
             ))}
             {options.length === 0 && (
-              <div className="px-3 py-2 text-mui-text-secondary">
+              <div className="px-3 py-2 text-gray-600 dark:text-gray-400">
                 No options available
               </div>
             )}

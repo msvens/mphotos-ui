@@ -77,7 +77,7 @@ export function MultiSelect({
       {label && (
         <label
           htmlFor={id}
-          className="block text-xs text-mui-text-secondary mb-1"
+          className="block text-xs text-gray-600 dark:text-gray-400 mb-1"
         >
           {label}
         </label>
@@ -91,18 +91,18 @@ export function MultiSelect({
           ${widthClass}
           px-3 py-2
           bg-transparent
-          border border-mui-divider
+          border border-gray-200 dark:border-gray-700
           rounded
-          text-mui-text-primary
+          text-gray-900 dark:text-white
           focus:outline-none
-          focus:border-mui-primary
-          hover:border-mui-text-primary
+          focus:border-blue-500
+          hover:border-gray-900 dark:hover:border-white
           cursor-pointer
           min-h-[42px]
           flex items-center justify-between
         `}
       >
-        <span className={value.length === 0 ? 'text-mui-text-disabled' : ''}>
+        <span className={value.length === 0 ? 'text-gray-400 dark:text-gray-600' : ''}>
           {displayText}
         </span>
         <svg
@@ -117,26 +117,26 @@ export function MultiSelect({
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-[#424242] border border-mui-divider rounded shadow-lg max-h-[220px] overflow-y-auto">
+        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-[#424242] border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-[220px] overflow-y-auto">
           {options.map((option) => (
             <div
               key={option.value}
               onClick={() => handleToggle(option.value)}
-              className="flex items-center px-3 py-2 hover:bg-mui-background-hover cursor-pointer"
+              className="flex items-center px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
             >
               <input
                 type="checkbox"
                 checked={value.includes(option.value)}
                 onChange={() => {}} // Handled by parent div onClick
-                className="mr-3 h-4 w-4 accent-mui-primary cursor-pointer"
+                className="mr-3 h-4 w-4 accent-blue-500 cursor-pointer"
               />
-              <span className="text-mui-text-primary text-sm">
+              <span className="text-gray-900 dark:text-white text-sm">
                 {option.label}
               </span>
             </div>
           ))}
           {options.length === 0 && (
-            <div className="px-3 py-2 text-mui-text-disabled text-sm">
+            <div className="px-3 py-2 text-gray-400 dark:text-gray-600 text-sm">
               No options available
             </div>
           )}

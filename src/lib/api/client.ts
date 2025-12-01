@@ -36,15 +36,27 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const url = createApiUrl(endpoint, config);
   const method = config?.method || 'GET';
-  
+
   try {
-    const response = await fetch(url, {
+    // Check if body is FormData
+    const isFormData = config?.body instanceof FormData;
+
+    // Build fetch options
+    const fetchOptions: RequestInit = {
       method,
-      ...(config?.body ? {
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config.body)
-      } : {})
-    });
+    };
+
+    if (config?.body) {
+      if (isFormData) {
+        // Don't set Content-Type for FormData - browser will set it automatically with boundary
+        fetchOptions.body = config.body as FormData;
+      } else {
+        fetchOptions.headers = { 'Content-Type': 'application/json' };
+        fetchOptions.body = JSON.stringify(config.body);
+      }
+    }
+
+    const response = await fetch(url, fetchOptions);
 
     if (!response.ok) {
       throw new ApiError(response.status, `HTTP error! status: ${response.status}`);

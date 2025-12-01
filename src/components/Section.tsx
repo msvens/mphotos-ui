@@ -32,7 +32,7 @@ export function Section({
   return (
     <div className={`w-full ${spacingMap[spacing]} ${className}`}>
       {children}
-      {showDivider && <hr className={`border-mui-divider ${dividerSpacingMap[spacing]}`} />}
+      {showDivider && <hr className={`border-gray-200 dark:border-gray-700 ${dividerSpacingMap[spacing]}`} />}
     </div>
   );
 } 

@@ -12,6 +12,7 @@ interface IconButtonProps {
   tooltipPlacement?: TooltipPlacement;
   className?: string;
   iconClassName?: string;
+  background?: string; // Optional background color (e.g., 'rgba(0,0,0,0.5)')
 }
 
 const sizeClasses = {
@@ -41,17 +42,24 @@ export function IconButton({
   title,
   tooltipPlacement,
   className = '',
-  iconClassName = ''
+  iconClassName = '',
+  background
 }: IconButtonProps) {
   const { button: buttonSize, icon: iconSize } = sizeClasses[size];
+
+  // When background is set, use brightness filter for hover; otherwise use bg color change
+  const hoverClasses = background
+    ? 'hover:brightness-150 active:scale-90'
+    : 'hover:bg-gray-300 dark:hover:bg-gray-700 active:bg-gray-400/20 active:scale-90';
 
   const button = (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center justify-center text-white rounded-full
+      style={background ? { backgroundColor: background } : undefined}
+      className={`flex items-center justify-center rounded-full
         disabled:opacity-50 disabled:cursor-not-allowed
-        hover:bg-mui-background-hover active:bg-white/20 active:scale-90
+        ${hoverClasses}
         transition-all duration-150
         ${buttonSize}
         ${className}`}

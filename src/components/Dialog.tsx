@@ -56,12 +56,12 @@ export function Dialog({
 
       {/* Dialog */}
       <div
-        className={`relative bg-[#424242] rounded ${maxWidthClass} w-full mx-4 shadow-lg`}
+        className={`relative bg-white dark:bg-[#424242] rounded ${maxWidthClass} w-full mx-4 shadow-lg`}
       >
         {/* Title */}
         {title && (
           <div className="px-6 pt-6 pb-4">
-            <h2 className="text-xl font-normal text-mui-text-primary">
+            <h2 className="text-xl font-normal text-gray-900 dark:text-white">
               {title}
             </h2>
           </div>
@@ -70,13 +70,13 @@ export function Dialog({
         {/* Content */}
         <div className="px-6 pb-4">
           {text && (
-            <p className="text-sm text-mui-text-secondary mb-4">{text}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{text}</p>
           )}
           {children}
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 px-6 py-4 border-t border-mui-divider">
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
           <Button variant="text" onClick={onClose}>
             {closeText}
           </Button>
