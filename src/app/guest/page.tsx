@@ -1,70 +1,167 @@
 'use client';
 
-import { Divider } from "@/components/Divider";
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from "@/components/Button";
+import { RegisterGuestDialog } from "@/components/guest/RegisterGuestDialog";
+import { guestsService } from '@/lib/api/services';
+import { UserPlusIcon } from '@heroicons/react/24/outline';
 
 export default function Guest() {
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-2xl font-light mb-4">Guest Book</h1>
-        <p className="text-gray-600 dark:text-gray-400">Leave a message or comment</p>
+  const searchParams = useSearchParams();
+  const [showDialog, setShowDialog] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [verified, setVerified] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkGuest = async () => {
+      try {
+        const guest = await guestsService.isGuest();
+        setIsGuest(guest);
+        if (guest) {
+          const guestData = await guestsService.getGuest();
+          setGuestName(guestData.name);
+          setGuestEmail(guestData.email);
+        }
+      } catch {
+        setIsGuest(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkGuest();
+  }, []);
+
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (code) {
+      const verify = async () => {
+        try {
+          const result = await guestsService.verifyGuest(code);
+          setVerified(result.verified);
+          if (result.verified) {
+            setIsGuest(true);
+            setGuestName(result.name);
+            setGuestEmail(result.email);
+          }
+        } catch (error) {
+          alert('Error verifying guest: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        }
+      };
+      verify();
+    }
+  }, [searchParams]);
+
+  const handleLogout = async () => {
+    try {
+      await guestsService.logoutGuest();
+      setIsGuest(false);
+      setGuestName('');
+      setGuestEmail('');
+    } catch (error) {
+      alert('Error logging out: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-2xl mx-auto py-8">
+        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
       </div>
+    );
+  }
 
-      <Divider />
+  // Show verification success message
+  if (searchParams.get('code') && verified && isGuest) {
+    return (
+      <div className="max-w-2xl mx-auto py-8 space-y-6">
+        <h1 className="text-2xl font-light text-gray-900 dark:text-white">Thank you for verifying!</h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          As a guest at mellowtech you can comment and like photos!
+          <br />
+          You are registered as:
+        </p>
+        <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
+          <li><strong>Name</strong>: {guestName}</li>
+          <li><strong>Email</strong>: {guestEmail}</li>
+        </ul>
+        <p className="text-gray-600 dark:text-gray-400">
+          Continue to <a href="/photo" className="text-blue-600 dark:text-blue-400 hover:underline">individual Photos</a>
+          <br />
+          Continue to <a href="/" className="text-blue-600 dark:text-blue-400 hover:underline">photo grid</a>
+        </p>
+      </div>
+    );
+  }
 
-      {/* New Message Form */}
-      <section className="max-w-2xl mx-auto">
-        <h2 className="text-xl font-light mb-6">Write a Message</h2>
-        <form className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
-            <input
-              type="text"
-              className="w-full p-2 rounded border border-gray-200 dark:border-gray-700 bg-transparent"
-              placeholder="Your name"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Message</label>
-            <textarea
-              className="w-full p-2 rounded border border-gray-200 dark:border-gray-700 bg-transparent"
-              rows={4}
-              placeholder="Write your message here..."
-            />
-          </div>
-          <div>
-            <Button color="primary">Post Message</Button>
-          </div>
-        </form>
-      </section>
-
-      <Divider />
-
-      {/* Messages List */}
-      <section className="max-w-2xl mx-auto">
-        <h2 className="text-2xl font-light mb-6">Recent Messages</h2>
-        <div className="space-y-6">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-medium">Guest Name {i + 1}</h3>
-                <span className="text-sm text-gray-600 dark:text-gray-400">2 days ago</span>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-            </div>
-          ))}
+  // Show welcome back message if already a guest
+  if (!searchParams.get('code') && isGuest) {
+    return (
+      <div className="max-w-2xl mx-auto py-8 space-y-6">
+        <h1 className="text-2xl font-light text-gray-900 dark:text-white">Welcome back {guestName}!</h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          If you want to update your name or register a new Guest you can do so from here by clicking the update button below.
+        </p>
+        <p className="text-gray-600 dark:text-gray-400">
+          Your guest account is tied to your email address and as long as you register with the same email you can change your name.
+        </p>
+        <p className="text-gray-600 dark:text-gray-400">
+          If you want to register/sign in with a different user make sure to use a different name and email.
+        </p>
+        <div className="flex gap-4">
+          <Button
+            variant="outlined"
+            onClick={() => setShowDialog(true)}
+            className="flex items-center gap-2"
+          >
+            <UserPlusIcon className="h-5 w-5" />
+            Update Guest
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={handleLogout}
+          >
+            Logout Guest
+          </Button>
         </div>
-      </section>
-
-      {/* Load More */}
-      <div className="text-center">
-        <Button>Load More Messages</Button>
+        <RegisterGuestDialog
+          open={showDialog}
+          onClose={() => setShowDialog(false)}
+          isUpdate={true}
+          initialName={guestName}
+          initialEmail={guestEmail}
+        />
       </div>
+    );
+  }
+
+  // Show registration page for non-guests
+  return (
+    <div className="max-w-2xl mx-auto py-8 space-y-6">
+      <h1 className="text-2xl font-light text-gray-900 dark:text-white">Register Guest</h1>
+      <p className="text-gray-600 dark:text-gray-400">
+        In order to be able to comment and like photos you need to register as a guest by providing
+        a nickname and your email address. You will get at a verification email sent to your provided
+        email.
+      </p>
+      <div>
+        <Button
+          variant="outlined"
+          onClick={() => setShowDialog(true)}
+          className="flex items-center gap-2"
+        >
+          <UserPlusIcon className="h-5 w-5" />
+          REGISTER GUEST
+        </Button>
+      </div>
+      <RegisterGuestDialog
+        open={showDialog}
+        onClose={() => setShowDialog(false)}
+      />
     </div>
   );
 } 

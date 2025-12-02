@@ -98,7 +98,7 @@ export interface Guest {
   email: string;
   name: string;
   verified: boolean;
-  time: string;
+  verifyTime: string;
 }
 
 export interface Config {

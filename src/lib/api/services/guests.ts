@@ -1,43 +1,109 @@
-import { Guest } from '../types';
+import { Guest, AuthUser, ApiResponse } from '../types';
+
+export interface RegisterGuestParams {
+  name: string;
+  email: string;
+}
+
+export interface UpdateGuestParams {
+  name: string;
+  email: string;
+}
 
 export interface GuestsService {
-  // Guest management operations (to be implemented when needed)
-  getGuests(): Promise<Guest[]>;
-  getGuest(email: string): Promise<Guest>;
-  createGuest(guest: Partial<Guest>): Promise<Guest>;
-  updateGuest(email: string, guest: Partial<Guest>): Promise<Guest>;
-  deleteGuest(email: string): Promise<void>;
-  verifyGuest(email: string, token: string): Promise<Guest>;
+  registerGuest(params: RegisterGuestParams): Promise<Guest>;
+  verifyGuest(code: string): Promise<Guest>;
+  updateGuest(params: UpdateGuestParams): Promise<Guest>;
+  getGuest(): Promise<Guest>;
+  isGuest(): Promise<boolean>;
+  logoutGuest(): Promise<AuthUser>;
+}
+
+const API_BASE = 'http://localhost:8060/api';
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const errorData = await response.json() as ApiResponse<T>;
+    const errorMessage = errorData.error?.message || response.statusText;
+    throw new Error(`${response.status}: ${errorMessage}`);
+  }
+  const data = await response.json() as ApiResponse<T>;
+  if (data.error) {
+    throw new Error(`${data.error.status}: ${data.error.message}`);
+  }
+  if (!data.data) {
+    throw new Error('No data in response');
+  }
+  return data.data;
 }
 
 export const guestsService: GuestsService = {
-  async getGuests() {
-    // TODO: Implement when backend endpoints are ready
-    throw new Error('Guest functionality not yet implemented');
+  async registerGuest(params: RegisterGuestParams): Promise<Guest> {
+    const response = await fetch(`${API_BASE}/guest`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(params),
+    });
+    return handleResponse<Guest>(response);
   },
 
-  async getGuest() {
-    // TODO: Implement when backend endpoints are ready
-    throw new Error('Guest functionality not yet implemented');
+  async verifyGuest(code: string): Promise<Guest> {
+    const response = await fetch(`${API_BASE}/guest/verify?code=${code}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+    return handleResponse<Guest>(response);
   },
 
-  async createGuest() {
-    // TODO: Implement when backend endpoints are ready
-    throw new Error('Guest functionality not yet implemented');
+  async updateGuest(params: UpdateGuestParams): Promise<Guest> {
+    const response = await fetch(`${API_BASE}/guest/update`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(params),
+    });
+    return handleResponse<Guest>(response);
   },
 
-  async updateGuest() {
-    // TODO: Implement when backend endpoints are ready
-    throw new Error('Guest functionality not yet implemented');
+  async getGuest(): Promise<Guest> {
+    const response = await fetch(`${API_BASE}/guest`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+    return handleResponse<Guest>(response);
   },
 
-  async deleteGuest() {
-    // TODO: Implement when backend endpoints are ready
-    throw new Error('Guest functionality not yet implemented');
+  async isGuest(): Promise<boolean> {
+    const response = await fetch(`${API_BASE}/guest/is`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+    const data = await handleResponse<AuthUser>(response);
+    return data.authenticated;
   },
 
-  async verifyGuest() {
-    // TODO: Implement when backend endpoints are ready
-    throw new Error('Guest functionality not yet implemented');
+  async logoutGuest(): Promise<AuthUser> {
+    const response = await fetch(`${API_BASE}/guest/logout`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+    return handleResponse<AuthUser>(response);
   },
 };
