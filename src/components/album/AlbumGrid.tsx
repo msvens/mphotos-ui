@@ -14,6 +14,7 @@ import { Button } from '../Button';
 function AddAlbumCard({ onAdd }: { onAdd: () => void }) {
   return (
     <div className="flex flex-col bg-white dark:bg-dark-bg rounded overflow-hidden">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/photo-album.jpg"
         alt="Add Album"
@@ -53,6 +54,7 @@ function AlbumCard({ album, isAdmin, onEdit, onDelete }: AlbumCardProps) {
   return (
     <div className="flex flex-col bg-white dark:bg-dark-bg rounded overflow-hidden">
       <Link href={getAlbumLink()} className="block">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={getCoverImage()}
           alt={album.name}

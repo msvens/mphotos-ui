@@ -51,6 +51,7 @@ export function PhotoGrid({
               className="block overflow-hidden group w-full relative"
             >
               <div className="aspect-square w-full relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={photosService.getPhotoThumbUrl(photo.id)}
                   alt={photo.title || photo.fileName}

@@ -119,6 +119,7 @@ export function CameraDetail({ camera, onUpdate }: CameraDetailProps) {
     <div className="space-y-6">
       {/* Camera Image */}
       <div className="flex justify-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={cameraImageUrl}
           alt={camera.model}

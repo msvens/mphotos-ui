@@ -29,6 +29,7 @@ export function Bio() {
       <div className="flex flex-wrap items-center justify-center gap-8">
         {user.pic && (
           <div className="flex items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={user.pic}
               alt={user.name}
