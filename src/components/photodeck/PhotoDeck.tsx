@@ -2,10 +2,11 @@ import { PhotoMetadata } from '@/lib/api/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { photosService } from '@/lib/api/services';
+import { photosService, userService } from '@/lib/api/services';
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon, FaceSmileIcon, BookOpenIcon, ArchiveBoxIcon, PencilIcon, TrashIcon, ArrowPathRoundedSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { IconButton } from '@/components/IconButton';
 import { PhotoEditDialog } from '@/components/photo/PhotoEditDialog';
+import { Dialog } from '@/components/Dialog';
 import { useMPContext } from '@/context/MPContext';
 import { useToast } from '@/context/ToastContext';
 import { colorScheme, alpha } from '@/lib/colors';
@@ -40,15 +41,17 @@ export function PhotoDeck({
   editControls = false,
   windowFullScreen,
   onUpdatePhoto,
+  onDeletePhoto,
 }: PhotoDeckProps) {
   const router = useRouter();
-  const { uxConfig } = useMPContext();
+  const { uxConfig, refreshAuth } = useMPContext();
   const toast = useToast();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [nextImageId, setNextImageId] = useState<string | null>(null);
   const [isInPhotostream, setIsInPhotostream] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const touch: TouchState = { xStart: -1, xPos: -1, yStart: -1, yPos: -1 };
 
@@ -193,8 +196,18 @@ export function PhotoDeck({
     }
   };
 
-  const handleProfilePic = () => {
-    alert('Set as profile picture');
+  const handleProfilePic = async () => {
+    if (!currentPhoto) return;
+
+    try {
+      const thumbUrl = photosService.getPhotoThumbUrl(currentPhoto.id);
+      await userService.updateUserPic(thumbUrl);
+      await refreshAuth();
+      toast.success('Profile picture updated');
+    } catch (error) {
+      console.error('Error setting profile picture:', error);
+      toast.error('Failed to update profile picture');
+    }
   };
 
   const handleEdit = () => {
@@ -208,8 +221,45 @@ export function PhotoDeck({
     }
   };
 
+  const handleCropRotate = () => {
+    if (!currentPhoto) return;
+    // Navigate to crop page
+    router.push(`${urlPrefix}${currentPhoto.id}/crop${searchQuery || ''}`);
+  };
+
   const handleDelete = () => {
-    alert('Delete photo');
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!currentPhoto) return;
+
+    try {
+      await photosService.deletePhoto(currentPhoto.id, true);
+      toast.success('Photo deleted');
+
+      // Call parent callback if provided
+      if (onDeletePhoto) {
+        onDeletePhoto(currentPhoto);
+      }
+
+      // Navigate to next or previous photo, staying in the same area
+      if (photos.length > 1) {
+        // Try next photo first, fall back to previous
+        const newIndex = currentIndex < photos.length - 1 ? currentIndex + 1 : currentIndex - 1;
+        const targetPhoto = photos[newIndex];
+
+        // Navigate to the target photo and refresh to get updated data
+        router.push(`${urlPrefix}${targetPhoto.id}${searchQuery || ''}`);
+        router.refresh(); // Force Next.js to refetch server data
+      } else {
+        // Last photo in the list, go back to photo list
+        router.push(urlPrefix);
+      }
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      toast.error('Failed to delete photo');
+    }
   };
 
   if (!currentPhoto) {
@@ -271,12 +321,13 @@ export function PhotoDeck({
         </div>
 
         {/* Photo Display - Fullscreen Mode */}
-        <div 
+        <div
           className="w-full h-full flex items-center justify-center"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={`fullscreen-${currentPhoto.id}`}
             src={photosService.getPhotoUrl(currentPhoto.id)}
@@ -376,7 +427,7 @@ export function PhotoDeck({
             />
             <IconButton
               icon={ArrowPathRoundedSquareIcon}
-              onClick={() => alert('Crop/Rotate photo')}
+              onClick={handleCropRotate}
               title="Crop/rotate photo"
               tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
               background={alpha(cs.backgroundColor, 0.5)}
@@ -405,6 +456,7 @@ export function PhotoDeck({
           />
         </div>
         <div className="relative w-full flex items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={`current-${currentPhoto.id}`}
             src={photosService.getPhotoUrl(currentPhoto.id)}
@@ -414,14 +466,17 @@ export function PhotoDeck({
           />
 
           {nextImageId && (
-            <img
-              key={`next-${nextImageId}`}
-              src={photosService.getPhotoUrl(nextImageId)}
-              alt=""
-              className={IMAGE_CLASSES}
-              style={{ opacity: 0 }}
-              onLoad={handleNextImageLoad}
-            />
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                key={`next-${nextImageId}`}
+                src={photosService.getPhotoUrl(nextImageId)}
+                alt=""
+                className={IMAGE_CLASSES}
+                style={{ opacity: 0 }}
+                onLoad={handleNextImageLoad}
+              />
+            </>
           )}
         </div>
       </div>
@@ -510,6 +565,19 @@ export function PhotoDeck({
           open={showEditDialog}
           photo={currentPhoto}
           onClose={handleEditClose}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {editControls && (
+        <Dialog
+          open={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          onOk={handleDeleteConfirm}
+          title="Delete Photo?"
+          text="By removing the photo all associated image data will be deleted"
+          okText="DELETE"
+          closeText="CANCEL"
         />
       )}
     </div>

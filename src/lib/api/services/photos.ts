@@ -2,12 +2,21 @@ import { PhotoMetadata, PhotoList, AffectedItems, Album } from '../types';
 import { API_ENDPOINTS } from '../config';
 import { api } from '../client';
 
+export interface EditPhotoParams {
+  rotation: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface PhotosService {
   getPhotos(): Promise<PhotoList>;
   getPagedPhotos(limit: number, offset: number): Promise<PhotoList>;
   getPhotosByCameraModel(cameraModel: string): Promise<PhotoList>;
   getPhoto(id: string): Promise<PhotoMetadata>;
   updatePhoto(id: string, title: string, description: string, keywords: string): Promise<PhotoMetadata>;
+  editPhoto(id: string, params: EditPhotoParams): Promise<PhotoMetadata>;
   uploadLocalPhoto(file: File): Promise<PhotoMetadata>;
   deletePhoto(id: string, removeFiles: boolean): Promise<PhotoMetadata>;
   deletePhotos(removeFiles: boolean): Promise<PhotoList>;
@@ -63,6 +72,10 @@ export const photosService: PhotosService = {
       keywords: keywords.split(',').map(k => k.trim()).filter(k => k.length > 0),
     };
     return api.put<PhotoMetadata>(API_ENDPOINTS.photo(id), data);
+  },
+
+  async editPhoto(id: string, params: EditPhotoParams) {
+    return api.put<PhotoMetadata>(`${API_ENDPOINTS.photo(id)}/edit`, params);
   },
 
   async uploadLocalPhoto(file: File) {
