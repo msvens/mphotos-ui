@@ -310,6 +310,34 @@ The `Section` component provides consistent vertical spacing between major conte
 
 This system ensures consistent vertical rhythm throughout the application while maintaining flexibility for different content types and hierarchies.
 
+### PageSpacing Component
+
+**IMPORTANT:** All page components (`src/app/*/page.tsx`) must include the `PageSpacing` component to prevent content from being hidden behind the fixed navbar.
+
+```tsx
+import { PageSpacing } from '@/components/layout/PageSpacing';
+
+export default function MyPage() {
+  return (
+    <>
+      <PageSpacing />
+      <div className="max-w-2xl mx-auto py-8">
+        {/* page content */}
+      </div>
+    </>
+  );
+}
+```
+
+**Key Points:**
+- Import from `@/components/layout/PageSpacing`
+- Add as the first element in the return statement
+- Use `<PageSpacing />` (no props) for standard pages - defaults to 96px spacing
+- Use `<PageSpacing height="no_spacing" />` only for full-viewport pages like PhotoDeck or CropPage
+- Wrap in a fragment (`<>`) when you have multiple top-level elements
+
+**Why this matters:** The navbar is fixed positioned, so without PageSpacing, the page content starts at the top of the viewport and gets hidden behind it.
+
 ## Known Issues / Technical Debt
 
 ### Z-Index Stacking Context Issue

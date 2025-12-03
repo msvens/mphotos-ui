@@ -13,6 +13,7 @@ export interface TextFieldProps {
   margin?: 'none' | 'dense' | 'normal';
   placeholder?: string;
   type?: string;
+  disabled?: boolean;
 }
 
 export function TextField({
@@ -26,6 +27,7 @@ export function TextField({
   margin = 'none',
   placeholder,
   type = 'text',
+  disabled = false,
 }: TextFieldProps) {
   const marginClass = {
     none: '',
@@ -45,6 +47,7 @@ export function TextField({
     focus:outline-none
     focus:border-blue-500
     hover:border-gray-900 dark:hover:border-white
+    ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
     ${widthClass}
   `;
 
@@ -65,6 +68,7 @@ export function TextField({
           onChange={onChange}
           rows={rows}
           placeholder={placeholder}
+          disabled={disabled}
           className={`${baseInputClasses} resize-none`}
         />
       ) : (
@@ -74,6 +78,7 @@ export function TextField({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
+          disabled={disabled}
           className={baseInputClasses}
         />
       )}
