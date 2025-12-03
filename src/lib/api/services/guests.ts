@@ -53,9 +53,6 @@ export const guestsService: GuestsService = {
   async verifyGuest(code: string): Promise<Guest> {
     const response = await fetch(`${API_BASE}/guest/verify?code=${code}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       credentials: 'include',
     });
     return handleResponse<Guest>(response);
@@ -76,9 +73,6 @@ export const guestsService: GuestsService = {
   async getGuest(): Promise<Guest> {
     const response = await fetch(`${API_BASE}/guest`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       credentials: 'include',
     });
     return handleResponse<Guest>(response);
@@ -87,9 +81,6 @@ export const guestsService: GuestsService = {
   async isGuest(): Promise<boolean> {
     const response = await fetch(`${API_BASE}/guest/is`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       credentials: 'include',
     });
     const data = await handleResponse<AuthUser>(response);
@@ -99,9 +90,6 @@ export const guestsService: GuestsService = {
   async logoutGuest(): Promise<AuthUser> {
     const response = await fetch(`${API_BASE}/guest/logout`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       credentials: 'include',
     });
     return handleResponse<AuthUser>(response);
