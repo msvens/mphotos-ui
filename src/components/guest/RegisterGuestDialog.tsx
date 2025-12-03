@@ -98,7 +98,7 @@ export function RegisterGuestDialog({
       onOk={handleRegister}
       title={isUpdate ? "Update User" : "Register User"}
       okText="OK"
-      cancelText="CANCEL"
+      closeText="CANCEL"
     >
       <p className="text-gray-600 dark:text-gray-400 mb-4">
         In order to be able to comment and like photos you need to register as a guest by providing

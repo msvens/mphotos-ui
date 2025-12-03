@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from "@/components/Button";
 import { RegisterGuestDialog } from "@/components/guest/RegisterGuestDialog";
 import { guestsService } from '@/lib/api/services';
 import { UserPlusIcon } from '@heroicons/react/24/outline';
 
-export default function Guest() {
+function GuestContent() {
   const searchParams = useSearchParams();
   const [showDialog, setShowDialog] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
@@ -90,9 +91,9 @@ export default function Guest() {
           <li><strong>Email</strong>: {guestEmail}</li>
         </ul>
         <p className="text-gray-600 dark:text-gray-400">
-          Continue to <a href="/photo" className="text-blue-600 dark:text-blue-400 hover:underline">individual Photos</a>
+          Continue to <Link href="/photo" className="text-blue-600 dark:text-blue-400 hover:underline">individual Photos</Link>
           <br />
-          Continue to <a href="/" className="text-blue-600 dark:text-blue-400 hover:underline">photo grid</a>
+          Continue to <Link href="/" className="text-blue-600 dark:text-blue-400 hover:underline">photo grid</Link>
         </p>
       </div>
     );
@@ -163,5 +164,13 @@ export default function Guest() {
         onClose={() => setShowDialog(false)}
       />
     </div>
+  );
+}
+
+export default function Guest() {
+  return (
+    <Suspense fallback={<div className="max-w-2xl mx-auto py-8"><p className="text-gray-600 dark:text-gray-400">Loading...</p></div>}>
+      <GuestContent />
+    </Suspense>
   );
 } 

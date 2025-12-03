@@ -330,17 +330,28 @@ The edit controls in `PhotoDeck.tsx` currently have no `z-index` to avoid a stac
 
 ## Getting Started
 
-First, run the development server:
+This project uses **Yarn** as the package manager. Make sure you have Yarn installed:
 
 ```bash
-npm run dev
-# or
+npm install -g yarn
+```
+
+Then install dependencies and run the development server:
+
+```bash
+# Install dependencies
+yarn install
+
+# Run development server
 yarn dev
-# or
-pnpm dev
+
+# Build for production
+yarn build
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+> **Note:** This project uses Yarn exclusively. Please do not use npm or pnpm to avoid lock file conflicts.
 
 ## Development
 
