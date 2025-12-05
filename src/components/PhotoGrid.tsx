@@ -23,7 +23,7 @@ export function PhotoGrid({
   renderBottomIcon,
   onBottomIconClick,
 }: PhotoGridProps) {
-  if (photos.length === 0) {
+  if (!photos || photos.length === 0) {
     return (
       <div className="w-full py-8 text-center text-gray-500">
         No photos available

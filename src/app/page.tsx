@@ -51,17 +51,17 @@ export default function Home() {
   // Fetch all photos when admin toggles to show all
   useEffect(() => {
     async function loadAllPhotos() {
-      if (isUser && !showPhotostream && uxConfig.photoStreamAlbumId && photostreamPhotos.length > 0) {
+      if (isUser && !showPhotostream && uxConfig.photoStreamAlbumId) {
         try {
           const photoList = await photosService.getPhotos();
           setPhotos(photoList.photos);
         } catch (error) {
           console.error('Error fetching all photos:', error);
-          setPhotos(photostreamPhotos);
+          setPhotos(photostreamPhotos || []);
         }
-      } else if (showPhotostream && photostreamPhotos.length > 0) {
+      } else if (showPhotostream) {
         // When switching back to photostream
-        setPhotos(photostreamPhotos);
+        setPhotos(photostreamPhotos || []);
       }
     }
 
@@ -69,7 +69,7 @@ export default function Home() {
   }, [isUser, showPhotostream, uxConfig.photoStreamAlbumId, photostreamPhotos]);
 
   // Create a Set of photostream photo IDs for efficient lookup
-  const photostreamPhotoIds = new Set(photostreamPhotos.map(p => p.id));
+  const photostreamPhotoIds = new Set((photostreamPhotos || []).map(p => p.id));
 
   const handleIconClick = async (photo: PhotoMetadata) => {
     if (!uxConfig.photoStreamAlbumId) {

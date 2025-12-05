@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMPContext } from '@/context/MPContext';
 import { userService } from '@/lib/api/services/user';
 import { useToast } from '@/context/ToastContext';
 import { Divider } from "@/components/Divider";
 import { Button } from "@/components/Button";
+import { ProfileIcon } from "@/components/ProfileIcon";
 
 export function Profile() {
   const { user, refreshAuth } = useMPContext();
@@ -13,6 +14,19 @@ export function Profile() {
   const [name, setName] = useState(user.name || '');
   const [bio, setBio] = useState(user.bio || '');
   const [pic, setPic] = useState(user.pic || '');
+  const [picError, setPicError] = useState(false);
+
+  // Check if current profile picture is valid
+  useEffect(() => {
+    if (user.pic) {
+      const img = new Image();
+      img.onload = () => setPicError(false);
+      img.onerror = () => setPicError(true);
+      img.src = user.pic;
+    } else {
+      setPicError(false);
+    }
+  }, [user.pic]);
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -69,6 +83,31 @@ export function Profile() {
             className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Profile picture URL"
           />
+
+          {/* Warning if current picture is broken */}
+          {picError && (
+            <div className="mt-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <p className="text-sm text-red-600 dark:text-red-400">
+                ⚠️ Your profile picture is broken or the photo has been deleted
+              </p>
+            </div>
+          )}
+
+          {/* Preview current picture */}
+          <div className="mt-3 flex items-center gap-4">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Current picture:</span>
+            {user.pic && !picError ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.pic}
+                alt="Profile preview"
+                onError={() => setPicError(true)}
+                className="w-16 h-16 rounded-full object-cover"
+              />
+            ) : (
+              <ProfileIcon className="w-16 h-16 text-gray-400 dark:text-gray-500" />
+            )}
+          </div>
         </div>
 
         <div>
