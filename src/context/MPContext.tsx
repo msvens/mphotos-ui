@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { authService } from '@/lib/api/services';
+import { authService, guestsService } from '@/lib/api/services';
 
 export interface User {
   name: string;
@@ -32,6 +32,7 @@ export interface UXConfig {
 
 export interface MPContextType {
   isUser: boolean;
+  isGuest: boolean;
   user: User;
   guest?: Guest;
   uxConfig: UXConfig;
@@ -39,6 +40,7 @@ export interface MPContextType {
   login: (password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
+  refreshGuest: () => Promise<void>;
 }
 
 const defaultUXConfig: UXConfig = {
@@ -63,12 +65,14 @@ const defaultUser: User = {
 
 export const MPContext = createContext<MPContextType>({
   isUser: false,
+  isGuest: false,
   user: defaultUser,
   uxConfig: defaultUXConfig,
   isLoading: true,
   login: async () => {},
   logout: async () => {},
   refreshAuth: async () => {},
+  refreshGuest: async () => {},
 });
 
 export const useMPContext = () => useContext(MPContext);
@@ -76,12 +80,14 @@ export const useMPContext = () => useContext(MPContext);
 export const MPContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [contextValue, setContextValue] = useState<MPContextType>({
     isUser: false,
+    isGuest: false,
     user: defaultUser,
     uxConfig: defaultUXConfig,
     isLoading: true,
     login: async () => {},
     logout: async () => {},
     refreshAuth: async () => {},
+    refreshGuest: async () => {},
   });
 
   const refreshAuth = async () => {
@@ -205,11 +211,44 @@ export const MPContextProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const refreshGuest = async () => {
+    try {
+      const isGuestUser = await guestsService.isGuest();
+
+      if (isGuestUser) {
+        // Fetch guest information
+        const guestData = await guestsService.getGuest();
+        setContextValue(prev => ({
+          ...prev,
+          isGuest: true,
+          guest: guestData,
+        }));
+      } else {
+        // Not a guest - clear guest state
+        setContextValue(prev => ({
+          ...prev,
+          isGuest: false,
+          guest: undefined,
+        }));
+      }
+    } catch (error) {
+      console.error('Error refreshing guest:', error);
+      // On error, set isGuest to false
+      setContextValue(prev => ({
+        ...prev,
+        isGuest: false,
+        guest: undefined,
+      }));
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Initial load - check authentication first
         await refreshAuth();
+        // Also check for guest authentication
+        await refreshGuest();
       } catch (error) {
         console.error('Error fetching data:', error);
         setContextValue(prev => ({
@@ -227,6 +266,7 @@ export const MPContextProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     login,
     logout,
     refreshAuth,
+    refreshGuest,
   };
 
   return (

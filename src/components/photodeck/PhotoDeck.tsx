@@ -11,6 +11,8 @@ import { useMPContext } from '@/context/MPContext';
 import { useToast } from '@/context/ToastContext';
 import { colorScheme, alpha } from '@/lib/colors';
 import { modelToId } from '@/lib/utils';
+import { PhotoLikes } from './PhotoLikes';
+import { PhotoComments } from './PhotoComments';
 
 interface TouchState {
   xStart: number;
@@ -489,26 +491,10 @@ export function PhotoDeck({
             {/* Left Column - Social Features */}
             <div className="space-y-4">
               {/* Like Section */}
-              <div className="flex items-center space-x-3">
-                <div className="cursor-pointer hover:scale-110 transition-transform">
-                  <svg className="w-6 h-6 text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </div>
-                <span className="text-sm text-gray-900 dark:text-white">be the first one to like this</span>
-              </div>
+              <PhotoLikes photoId={currentPhoto.id} />
 
               {/* Comment Section */}
-              <div className="relative">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 pr-20 border border-gray-200 dark:border-gray-700 rounded bg-transparent focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
-                  placeholder="Share your thoughts..."
-                />
-                <button className="absolute right-1 top-1 px-3 py-1 text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
-                  POST
-                </button>
-              </div>
+              <PhotoComments photoId={currentPhoto.id} />
             </div>
 
             {/* Right Column - Photo Details */}

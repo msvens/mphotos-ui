@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { IconButton } from './IconButton';
 import { useMPContext } from '@/context/MPContext';
+import { Logo } from './Logo';
 
 const navigation = [
   { name: 'Home', href: '/', icon: HomeIcon },
@@ -37,6 +38,7 @@ export default function Navbar() {
   const iconSize = isDense ? 'medium' : 'large'; // Passed to IconButton
   const mobileIconSize = isDense ? 'w-6 h-6' : 'w-8 h-8'; // Mobile menu icons
   const paddingY = isDense ? 'py-1' : 'py-2';
+  const logoSize = isDense ? 'w-8 h-8' : 'w-10 h-10'; // Logo size based on dense mode
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-gray-700">
@@ -44,9 +46,12 @@ export default function Navbar() {
         <div className={`flex justify-between ${navHeight}`}>
           {/* App Name - Left aligned */}
           <div className="flex items-center flex-shrink-0 pl-1">
-            <Link href="/" className="text-base font-light text-gray-900 dark:text-white leading-tight tracking-widest uppercase">
-              <span className="block">Mellowtech</span>
-              <span className="block">Photos</span>
+            <Link href="/" className="flex items-center gap-2 cursor-pointer">
+              <Logo className={`${logoSize} text-gray-900 dark:text-white flex-shrink-0`} />
+              <div className="text-base font-light text-gray-900 dark:text-white leading-tight tracking-widest uppercase">
+                <span className="block">Mellowtech</span>
+                <span className="block">Photos</span>
+              </div>
             </Link>
           </div>
           

@@ -1,4 +1,4 @@
-import { Guest, AuthUser, ApiResponse } from '../types';
+import { Guest, AuthUser, ApiResponse, GuestReaction, GuestLike, PhotoComment } from '../types';
 
 export interface RegisterGuestParams {
   name: string;
@@ -17,6 +17,13 @@ export interface GuestsService {
   getGuest(): Promise<Guest>;
   isGuest(): Promise<boolean>;
   logoutGuest(): Promise<AuthUser>;
+  getPhotoLikes(photoId: string): Promise<GuestReaction[]>;
+  getGuestLike(photoId: string): Promise<boolean>;
+  getGuestLikes(): Promise<string[]>;
+  likePhoto(photoId: string): Promise<string>;
+  unlikePhoto(photoId: string): Promise<string>;
+  getPhotoComments(photoId: string): Promise<PhotoComment[]>;
+  commentPhoto(photoId: string, comment: string): Promise<PhotoComment>;
 }
 
 const API_BASE = 'http://localhost:8060/api';
@@ -93,5 +100,66 @@ export const guestsService: GuestsService = {
       credentials: 'include',
     });
     return handleResponse<AuthUser>(response);
+  },
+
+  async getPhotoLikes(photoId: string): Promise<GuestReaction[]> {
+    const response = await fetch(`${API_BASE}/likes/${photoId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    return handleResponse<GuestReaction[]>(response);
+  },
+
+  async getGuestLike(photoId: string): Promise<boolean> {
+    const response = await fetch(`${API_BASE}/guest/likes/${photoId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    const data = await handleResponse<GuestLike>(response);
+    return data.like;
+  },
+
+  async getGuestLikes(): Promise<string[]> {
+    const response = await fetch(`${API_BASE}/guest/likes`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    return handleResponse<string[]>(response);
+  },
+
+  async likePhoto(photoId: string): Promise<string> {
+    const response = await fetch(`${API_BASE}/likes/${photoId}/like`, {
+      method: 'PUT',
+      credentials: 'include',
+    });
+    return handleResponse<string>(response);
+  },
+
+  async unlikePhoto(photoId: string): Promise<string> {
+    const response = await fetch(`${API_BASE}/likes/${photoId}/unlike`, {
+      method: 'PUT',
+      credentials: 'include',
+    });
+    return handleResponse<string>(response);
+  },
+
+  async getPhotoComments(photoId: string): Promise<PhotoComment[]> {
+    const response = await fetch(`${API_BASE}/comments/${photoId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    return handleResponse<PhotoComment[]>(response);
+  },
+
+  async commentPhoto(photoId: string, comment: string): Promise<PhotoComment> {
+    const response = await fetch(`${API_BASE}/comments/${photoId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ body: comment }),
+    });
+    return handleResponse<PhotoComment>(response);
   },
 };

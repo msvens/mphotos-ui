@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { PhotoMetadata } from '@/lib/api/types';
-import { photosService } from '@/lib/api/services';
+import { photosService, albumsService } from '@/lib/api/services';
+import { useMPContext } from './MPContext';
 
 interface PhotoContextType {
   photos: PhotoMetadata[];
@@ -19,15 +20,31 @@ const PhotoContext = createContext<PhotoContextType>({
 export const usePhotoContext = () => useContext(PhotoContext);
 
 export function PhotoContextProvider({ children }: { children: React.ReactNode }) {
+  const { isUser, uxConfig, isLoading: isConfigLoading } = useMPContext();
   const [photos, setPhotos] = useState<PhotoMetadata[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPhotos = async () => {
+      if (isConfigLoading) return;
+
       try {
         setIsLoading(true);
-        const photoList = await photosService.getPhotos();
+        let photoList;
+
+        if (isUser) {
+          // Admin: fetch all photos
+          photoList = await photosService.getPhotos();
+        } else if (uxConfig.photoStreamAlbumId) {
+          // Guest/public: fetch photostream photos
+          photoList = await albumsService.getAlbumPhotos(uxConfig.photoStreamAlbumId);
+        } else {
+          setError('No photos available');
+          setIsLoading(false);
+          return;
+        }
+
         setPhotos(photoList.photos);
         setError(null);
       } catch (err) {
@@ -38,7 +55,7 @@ export function PhotoContextProvider({ children }: { children: React.ReactNode }
     };
 
     fetchPhotos();
-  }, []);
+  }, [isUser, uxConfig.photoStreamAlbumId, isConfigLoading]);
 
   return (
     <PhotoContext.Provider value={{ photos, isLoading, error }}>

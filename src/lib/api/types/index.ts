@@ -101,6 +101,24 @@ export interface Guest {
   verifyTime: string;
 }
 
+export interface GuestReaction {
+  email: string;
+  name: string;
+  kind: string;
+}
+
+export interface GuestLike {
+  like: boolean;
+}
+
+export interface PhotoComment {
+  id: number;
+  photoId: string;
+  name: string;
+  time: string;
+  body: string;
+}
+
 export interface Config {
   columns: number;
   spacing: number;
