@@ -7,6 +7,10 @@ export const driveService = {
     return result.authenticated;
   },
 
+  async disconnectDrive(): Promise<AuthUser> {
+    return api.get<AuthUser>('/api/drive/disconnect');
+  },
+
   async checkDrive(): Promise<DriveFiles> {
     return api.get<DriveFiles>('/api/drive/check');
   },

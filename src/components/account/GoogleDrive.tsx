@@ -13,7 +13,7 @@ const AUTH_URL = '/api/drive/auth?redir=' + encodeURIComponent('/account');
 
 export function GoogleDrive() {
   const { user, refreshAuth } = useMPContext();
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [folderName, setFolderName] = useState('');
   const [folderId, setFolderId] = useState('');
   const [openDownloadDialog, setOpenDownloadDialog] = useState(false);
@@ -25,7 +25,10 @@ export function GoogleDrive() {
   useEffect(() => {
     driveService.isAuthenticated()
       .then(setAuthenticated)
-      .catch((e) => console.error('Error checking auth:', e));
+      .catch((e) => {
+        console.error('Error checking auth:', e);
+        setAuthenticated(false);
+      });
   }, []);
 
   // Load user's drive folder info
@@ -99,19 +102,35 @@ export function GoogleDrive() {
     setIsDownloading(false);
   };
 
+  const handleAuthToggle = async () => {
+    if (authenticated) {
+      // Disconnect
+      try {
+        await driveService.disconnectDrive();
+        setAuthenticated(false);
+      } catch (error) {
+        console.error('Error disconnecting:', error);
+        alert('Error disconnecting: ' + error);
+      }
+    } else {
+      // Connect - redirect to auth URL
+      window.location.href = AUTH_URL;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Authentication Section */}
       <div>
         <p className="text-sm text-gray-900 dark:text-white mb-4">
-          Connected to Google: <strong>{String(authenticated)}</strong>
+          Connected to Google: <strong>{authenticated === null ? 'Loading...' : String(authenticated)}</strong>
         </p>
         <Button
-          href={AUTH_URL}
-          disabled={authenticated}
+          onClick={handleAuthToggle}
           variant="outlined"
+          disabled={authenticated === null}
         >
-          CONNECT TO GOOGLE
+          {authenticated === null ? 'LOADING...' : authenticated ? 'DISCONNECT' : 'CONNECT'}
         </Button>
       </div>
 
