@@ -40,9 +40,8 @@ interface AlbumCardProps {
 }
 
 function AlbumCard({ album, isAdmin, onEdit, onDelete }: AlbumCardProps) {
-  const getCoverImage = () => {
-    return album.coverPic || '/photo-album.jpg';
-  };
+  const [imgSrc, setImgSrc] = useState<string>(album.coverPic || '/photo-album.jpg');
+  const [imgError, setImgError] = useState(false);
 
   const getAlbumLink = () => {
     if (album.code) {
@@ -51,14 +50,22 @@ function AlbumCard({ album, isAdmin, onEdit, onDelete }: AlbumCardProps) {
     return `/album/${album.id}`;
   };
 
+  const handleImageError = () => {
+    if (!imgError) {
+      setImgError(true);
+      setImgSrc('/photo-album.jpg');
+    }
+  };
+
   return (
     <div className="flex flex-col bg-white dark:bg-dark-bg rounded overflow-hidden">
       <Link href={getAlbumLink()} className="block">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={getCoverImage()}
+          src={imgSrc}
           alt={album.name}
           className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+          onError={handleImageError}
         />
         <div className="p-4">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
