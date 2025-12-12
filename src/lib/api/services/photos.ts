@@ -22,12 +22,12 @@ export interface PhotosService {
   deletePhotos(removeFiles: boolean): Promise<PhotoList>;
   setPhotoAlbums(photoId: string, albumIds: string[]): Promise<AffectedItems>;
   getPhotoAlbums(photoId: string): Promise<Album[]>;
-  getThumbUrlId(id: string): string;
-  getLandscapeUrl(fileName: string): string;
-  getPortraitUrl(fileName: string): string;
-  getSquareUrl(fileName: string): string;
-  getResizeUrl(fileName: string): string;
-  getOriginalUrl(fileName: string): string;
+  getThumbUrl(id: string): string;
+  getLandscapeUrl(id: string): string;
+  getPortraitUrl(id: string): string;
+  getSquareUrl(id: string): string;
+  getResizeUrl(id: string): string;
+  getOriginalUrl(id: string): string;
   getPhotoThumbUrl(id: string): string;
   getPhotoResizeUrl(id: string): string;
   getPhotoUrl(id: string): string;
@@ -102,28 +102,28 @@ export const photosService: PhotosService = {
     return api.get<Album[]>(`${API_ENDPOINTS.photo(photoId)}/albums`);
   },
 
-  getThumbUrlId(id: string) {
-    return `/api/thumbs/${id}`;
+  getThumbUrl(id: string) {
+    return API_ENDPOINTS.photoThumb(id);
   },
 
-  getLandscapeUrl(fileName: string) {
-    return `/api/landscapes/${fileName}`;
+  getLandscapeUrl(id: string) {
+    return API_ENDPOINTS.photoLandscape(id);
   },
 
-  getPortraitUrl(fileName: string) {
-    return `/api/portraits/${fileName}`;
+  getPortraitUrl(id: string) {
+    return API_ENDPOINTS.photoPortrait(id);
   },
 
-  getSquareUrl(fileName: string) {
-    return `/api/squares/${fileName}`;
+  getSquareUrl(id: string) {
+    return API_ENDPOINTS.photoSquare(id);
   },
 
-  getResizeUrl(fileName: string) {
-    return `/api/resizes/${fileName}`;
+  getResizeUrl(id: string) {
+    return API_ENDPOINTS.photoResize(id);
   },
 
-  getOriginalUrl(fileName: string) {
-    return `/api/images/${fileName}`;
+  getOriginalUrl(id: string) {
+    return API_ENDPOINTS.photoFile(id);
   },
 
   getPhotoThumbUrl(id: string) {

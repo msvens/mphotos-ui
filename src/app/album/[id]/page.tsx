@@ -91,7 +91,7 @@ export default function AlbumPage({ params }: AlbumPageProps) {
     if (!album) return;
 
     try {
-      const coverPic = photosService.getLandscapeUrl(photo.fileName);
+      const coverPic = photosService.getLandscapeUrl(photo.id);
       const updatedAlbum = await albumsService.updateAlbum({
         ...album,
         coverPic,
@@ -158,7 +158,7 @@ export default function AlbumPage({ params }: AlbumPageProps) {
               linkTo={`/album/${resolvedParams.id}`}
               renderBottomIcon={isUser ? (photo) => {
                 const index = photos.findIndex(p => p.id === photo.id);
-                const isCover = album.coverPic === photosService.getLandscapeUrl(photo.fileName);
+                const isCover = album.coverPic === photosService.getLandscapeUrl(photo.id);
 
                 return (
                   <div className="flex items-center gap-1">

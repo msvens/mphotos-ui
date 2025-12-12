@@ -1,4 +1,6 @@
-import { Guest, AuthUser, ApiResponse, GuestReaction, GuestLike, PhotoComment } from '../types';
+import { Guest, AuthUser, GuestReaction, GuestLike, PhotoComment } from '../types';
+import { API_ENDPOINTS } from '../config';
+import { api } from '../client';
 
 export interface RegisterGuestParams {
   name: string;
@@ -26,140 +28,58 @@ export interface GuestsService {
   commentPhoto(photoId: string, comment: string): Promise<PhotoComment>;
 }
 
-const API_BASE = 'http://localhost:8060/api';
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const errorData = await response.json() as ApiResponse<T>;
-    const errorMessage = errorData.error?.message || response.statusText;
-    throw new Error(`${response.status}: ${errorMessage}`);
-  }
-  const data = await response.json() as ApiResponse<T>;
-  if (data.error) {
-    throw new Error(`${data.error.status}: ${data.error.message}`);
-  }
-  if (!data.data) {
-    throw new Error('No data in response');
-  }
-  return data.data;
-}
-
 export const guestsService: GuestsService = {
   async registerGuest(params: RegisterGuestParams): Promise<Guest> {
-    const response = await fetch(`${API_BASE}/guest`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(params),
-    });
-    return handleResponse<Guest>(response);
+    return api.put<Guest>(API_ENDPOINTS.guest, params);
   },
 
   async verifyGuest(code: string): Promise<Guest> {
-    const response = await fetch(`${API_BASE}/guest/verify?code=${code}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    return handleResponse<Guest>(response);
+    return api.get<Guest>(API_ENDPOINTS.guestVerify, { params: { code } });
   },
 
   async updateGuest(params: UpdateGuestParams): Promise<Guest> {
-    const response = await fetch(`${API_BASE}/guest/update`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(params),
-    });
-    return handleResponse<Guest>(response);
+    return api.put<Guest>(API_ENDPOINTS.guestUpdate, params);
   },
 
   async getGuest(): Promise<Guest> {
-    const response = await fetch(`${API_BASE}/guest`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    return handleResponse<Guest>(response);
+    return api.get<Guest>(API_ENDPOINTS.guest);
   },
 
   async isGuest(): Promise<boolean> {
-    const response = await fetch(`${API_BASE}/guest/is`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    const data = await handleResponse<AuthUser>(response);
+    const data = await api.get<AuthUser>(API_ENDPOINTS.guestIs);
     return data.authenticated;
   },
 
   async logoutGuest(): Promise<AuthUser> {
-    const response = await fetch(`${API_BASE}/guest/logout`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    return handleResponse<AuthUser>(response);
+    return api.get<AuthUser>(API_ENDPOINTS.guestLogout);
   },
 
   async getPhotoLikes(photoId: string): Promise<GuestReaction[]> {
-    const response = await fetch(`${API_BASE}/likes/${photoId}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    return handleResponse<GuestReaction[]>(response);
+    return api.get<GuestReaction[]>(API_ENDPOINTS.photoLikes(photoId));
   },
 
   async getGuestLike(photoId: string): Promise<boolean> {
-    const response = await fetch(`${API_BASE}/guest/likes/${photoId}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    const data = await handleResponse<GuestLike>(response);
+    const data = await api.get<GuestLike>(API_ENDPOINTS.guestLikePhoto(photoId));
     return data.like;
   },
 
   async getGuestLikes(): Promise<string[]> {
-    const response = await fetch(`${API_BASE}/guest/likes`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    return handleResponse<string[]>(response);
+    return api.get<string[]>(API_ENDPOINTS.guestLikes);
   },
 
   async likePhoto(photoId: string): Promise<string> {
-    const response = await fetch(`${API_BASE}/likes/${photoId}/like`, {
-      method: 'PUT',
-      credentials: 'include',
-    });
-    return handleResponse<string>(response);
+    return api.put<string>(API_ENDPOINTS.likePhoto(photoId));
   },
 
   async unlikePhoto(photoId: string): Promise<string> {
-    const response = await fetch(`${API_BASE}/likes/${photoId}/unlike`, {
-      method: 'PUT',
-      credentials: 'include',
-    });
-    return handleResponse<string>(response);
+    return api.put<string>(API_ENDPOINTS.unlikePhoto(photoId));
   },
 
   async getPhotoComments(photoId: string): Promise<PhotoComment[]> {
-    const response = await fetch(`${API_BASE}/comments/${photoId}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    return handleResponse<PhotoComment[]>(response);
+    return api.get<PhotoComment[]>(API_ENDPOINTS.photoComments(photoId));
   },
 
   async commentPhoto(photoId: string, comment: string): Promise<PhotoComment> {
-    const response = await fetch(`${API_BASE}/comments/${photoId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ body: comment }),
-    });
-    return handleResponse<PhotoComment>(response);
+    return api.post<PhotoComment>(API_ENDPOINTS.photoComments(photoId), { body: comment });
   },
 };

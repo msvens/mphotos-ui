@@ -36,6 +36,18 @@ export const API_ENDPOINTS = {
     comments: '/api/comments',
     photoComments: (photoId: string) => `/api/comments/${photoId}`,
 
+    // Guests
+    guest: '/api/guest',
+    guestVerify: '/api/guest/verify',
+    guestUpdate: '/api/guest/update',
+    guestIs: '/api/guest/is',
+    guestLogout: '/api/guest/logout',
+    guestLikes: '/api/guest/likes',
+    guestLikePhoto: (photoId: string) => `/api/guest/likes/${photoId}`,
+    photoLikes: (photoId: string) => `/api/likes/${photoId}`,
+    likePhoto: (photoId: string) => `/api/likes/${photoId}/like`,
+    unlikePhoto: (photoId: string) => `/api/likes/${photoId}/unlike`,
+
     // Drive
     driveCheck: '/api/drive/check',
 
