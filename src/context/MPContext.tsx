@@ -95,7 +95,7 @@ export const MPContextProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const isLoggedIn = await authService.isLoggedIn();
       
       // Always fetch public user information (for Bio component)
-      const userUrl = new URL('/api/user', 'http://localhost:8060').toString();
+      const userUrl = '/api/user';
       const userResponse = await fetch(userUrl, {
         headers: {
           'Accept': 'application/json',
@@ -109,7 +109,7 @@ export const MPContextProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // Always fetch user config (both logged in and guest users need UX config)
       let config = defaultUXConfig;
       try {
-        const configUrl = new URL('/api/user/config', 'http://localhost:8060').toString();
+        const configUrl = '/api/user/config';
         const configResponse = await fetch(configUrl, {
           headers: {
             'Accept': 'application/json',
