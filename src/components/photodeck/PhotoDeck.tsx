@@ -48,7 +48,13 @@ export function PhotoDeck({
   const router = useRouter();
   const { uxConfig, refreshAuth } = useMPContext();
   const toast = useToast();
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (startPhotoId && photos.length > 0) {
+      const index = photos.findIndex(photo => photo.id === startPhotoId);
+      return index !== -1 ? index : 0;
+    }
+    return 0;
+  });
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [nextImageId, setNextImageId] = useState<string | null>(null);
   const [isInPhotostream, setIsInPhotostream] = useState(false);
@@ -56,15 +62,6 @@ export function PhotoDeck({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const touch: TouchState = { xStart: -1, xPos: -1, yStart: -1, yPos: -1 };
-
-  useEffect(() => {
-    if (startPhotoId && photos.length > 0) {
-      const index = photos.findIndex(photo => photo.id === startPhotoId);
-      if (index !== -1) {
-        setCurrentIndex(index);
-      }
-    }
-  }, [startPhotoId, photos]);
 
   const currentPhoto = photos[currentIndex];
 
