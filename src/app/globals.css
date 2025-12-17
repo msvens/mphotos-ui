@@ -1,28 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 255, 255, 255;
+@theme {
+  --color-dark-bg: #121212;
 }
 
-.dark {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 18, 18, 18;
-  --background-end-rgb: 18, 18, 18;
-}
+@variant dark (.dark &);
 
 body {
-  color: rgb(var(--foreground-rgb));
-  @apply bg-white dark:bg-dark-bg;
-}
-
-@layer base {
-  body {
-    @apply antialiased;
-  }
+  @apply antialiased text-gray-900 dark:text-white bg-white dark:bg-dark-bg;
 }
 
 @layer utilities {
