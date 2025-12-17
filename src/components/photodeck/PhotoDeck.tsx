@@ -13,6 +13,7 @@ import { colorScheme, alpha } from '@/lib/colors';
 import { modelToId } from '@/lib/utils';
 import { PhotoLikes } from './PhotoLikes';
 import { PhotoComments } from './PhotoComments';
+import { useScreenSize } from '@/hooks/useScreenSize';
 
 interface TouchState {
   xStart: number;
@@ -33,7 +34,8 @@ interface PhotoDeckProps {
   onDeletePhoto?: (p: PhotoMetadata) => void;
 }
 
-const IMAGE_CLASSES = "w-auto h-auto max-h-[calc(100vh-200px)] object-contain transition-all duration-300";
+const IMAGE_CLASSES_DESKTOP = "w-auto h-auto max-h-[calc(100vh-200px)] object-contain transition-all duration-300";
+const IMAGE_CLASSES_MOBILE = "max-w-full max-h-full self-start transition-all duration-300";
 
 export function PhotoDeck({
   photos,
@@ -48,6 +50,7 @@ export function PhotoDeck({
   const router = useRouter();
   const { uxConfig, refreshAuth } = useMPContext();
   const toast = useToast();
+  const { isMobile, isPortrait } = useScreenSize();
   const [currentIndex, setCurrentIndex] = useState(() => {
     if (startPhotoId && photos.length > 0) {
       const index = photos.findIndex(photo => photo.id === startPhotoId);
@@ -339,9 +342,15 @@ export function PhotoDeck({
     );
   }
 
-  // Determine padding based on photo borders setting
+  // Determine padding based on photo borders setting and screen size
   const photoBorders = uxConfig.photoBorders;
   const getPadding = () => {
+    // On mobile, minimize padding to maximize screen space
+    if (isMobile) {
+      return { paddingLeft: '0', paddingRight: '0', paddingTop: '0', paddingBottom: '0' };
+    }
+
+    // Desktop padding based on photo borders setting
     switch (photoBorders) {
       case 'none':
         return { paddingLeft: '0', paddingRight: '0', paddingTop: '0', paddingBottom: '0' };
@@ -355,7 +364,6 @@ export function PhotoDeck({
   };
 
   const padding = getPadding();
-  const hasVerticalControls = photoBorders !== 'none';
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-48px)]">
@@ -367,7 +375,7 @@ export function PhotoDeck({
           width: '100vw',
           marginLeft: 'calc(-50vw + 50%)',
           ...padding,
-          minHeight: 'calc(100vh - 200px)',
+          minHeight: isMobile ? 'auto' : 'calc(100vh - 200px)',
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -397,14 +405,12 @@ export function PhotoDeck({
 
         {/* Edit Controls */}
         {editControls && (
-          <div
-            className={`absolute ${hasVerticalControls ? 'left-4 top-4 flex-col' : 'left-4 top-4 flex-row'} flex gap-2 p-2 z-10`}
-          >
+          <div className="absolute left-4 top-4 flex flex-row gap-2 p-2 z-10">
             <IconButton
               icon={FaceSmileIcon}
               onClick={handleProfilePic}
               title="Set as profile picture"
-              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              tooltipPlacement="bottom"
               background={alpha(cs.backgroundColor, 0.5)}
               className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
             />
@@ -412,7 +418,7 @@ export function PhotoDeck({
               icon={isInPhotostream ? BookOpenIcon : ArchiveBoxIcon}
               onClick={handlePhotostreamToggle}
               title={isInPhotostream ? "Remove from photostream" : "Add to photostream"}
-              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              tooltipPlacement="bottom"
               background={alpha(cs.backgroundColor, 0.5)}
               className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
             />
@@ -420,7 +426,7 @@ export function PhotoDeck({
               icon={PencilIcon}
               onClick={handleEdit}
               title="Edit photo metadata"
-              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              tooltipPlacement="bottom"
               background={alpha(cs.backgroundColor, 0.5)}
               className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
             />
@@ -428,7 +434,7 @@ export function PhotoDeck({
               icon={ArrowPathRoundedSquareIcon}
               onClick={handleCropRotate}
               title="Crop/rotate photo"
-              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              tooltipPlacement="bottom"
               background={alpha(cs.backgroundColor, 0.5)}
               className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
             />
@@ -436,7 +442,7 @@ export function PhotoDeck({
               icon={TrashIcon}
               onClick={handleDelete}
               title="Delete photo"
-              tooltipPlacement={hasVerticalControls ? "bottom-right" : "bottom"}
+              tooltipPlacement="bottom"
               background={alpha(cs.backgroundColor, 0.5)}
               className={cs.color === '#ffffff' ? 'text-white' : 'text-gray-900'}
             />
@@ -458,9 +464,9 @@ export function PhotoDeck({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={`current-${currentPhoto.id}`}
-            src={photosService.getPhotoUrl(currentPhoto.id)}
+            src={photosService.getDynamicImageUrl(currentPhoto, isPortrait, isMobile)}
             alt={currentPhoto.title || currentPhoto.fileName}
-            className={IMAGE_CLASSES}
+            className={isMobile ? IMAGE_CLASSES_MOBILE : IMAGE_CLASSES_DESKTOP}
             style={{ opacity: 1 }}
           />
 
@@ -469,9 +475,14 @@ export function PhotoDeck({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 key={`next-${nextImageId}`}
-                src={photosService.getPhotoUrl(nextImageId)}
+                src={(() => {
+                  const nextPhoto = photos.find(p => p.id === nextImageId);
+                  return nextPhoto
+                    ? photosService.getDynamicImageUrl(nextPhoto, isPortrait, isMobile)
+                    : photosService.getPhotoUrl(nextImageId);
+                })()}
                 alt=""
-                className={IMAGE_CLASSES}
+                className={isMobile ? IMAGE_CLASSES_MOBILE : IMAGE_CLASSES_DESKTOP}
                 style={{ opacity: 0 }}
                 onLoad={handleNextImageLoad}
               />
