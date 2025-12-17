@@ -31,6 +31,8 @@ export interface PhotosService {
   getPhotoThumbUrl(id: string): string;
   getPhotoResizeUrl(id: string): string;
   getPhotoUrl(id: string): string;
+  getPhotoAspect(photo: PhotoMetadata): 'portrait' | 'landscape' | 'square';
+  getDynamicImageUrl(photo: PhotoMetadata, isPortrait: boolean, isMobile: boolean): string;
 }
 
 export const photosService: PhotosService = {
@@ -136,5 +138,30 @@ export const photosService: PhotosService = {
 
   getPhotoUrl(id: string) {
     return API_ENDPOINTS.photoFile(id);
+  },
+
+  getPhotoAspect(photo: PhotoMetadata): 'portrait' | 'landscape' | 'square' {
+    const ratio = photo.width / photo.height;
+    if (ratio >= 1.25) return 'landscape';
+    if (ratio >= 0.8) return 'square';
+    return 'portrait';
+  },
+
+  getDynamicImageUrl(photo: PhotoMetadata, isPortrait: boolean, isMobile: boolean): string {
+    // Desktop: use full quality photo
+    if (!isMobile) {
+      return this.getPhotoUrl(photo.id);
+    }
+
+    // Mobile portrait: use portrait or square crop based on photo aspect
+    if (isPortrait) {
+      const aspect = this.getPhotoAspect(photo);
+      return aspect === 'portrait'
+        ? this.getPortraitUrl(photo.id)
+        : this.getSquareUrl(photo.id);
+    }
+
+    // Mobile landscape: use landscape crop
+    return this.getLandscapeUrl(photo.id);
   },
 }; 
