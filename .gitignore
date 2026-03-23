@@ -39,5 +39,6 @@ next-env.d.ts
 .idea/
 .vscode/
 
-# Claude Code session files
-.claude/
+# Claude Code local settings
+.claude/settings.local.json
+.claude/project-state.md
