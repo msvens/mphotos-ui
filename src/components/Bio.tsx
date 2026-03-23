@@ -13,6 +13,7 @@ export function Bio() {
   const { isUser, user } = useMPContext();
   const [isLargeDisplay, setIsLargeDisplay] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [lastPic, setLastPic] = useState(user.pic);
 
   useEffect(() => {
     function handleResize() {
@@ -25,9 +26,10 @@ export function Bio() {
   }, []);
 
   // Reset error state when user.pic changes
-  useEffect(() => {
+  if (user.pic !== lastPic) {
+    setLastPic(user.pic);
     setImageError(false);
-  }, [user.pic]);
+  }
 
   if (!user) return null;
 

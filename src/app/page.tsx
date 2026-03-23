@@ -1,7 +1,7 @@
 'use client';
 
 import { useMPContext } from '@/context/MPContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { photosService, albumsService } from '@/lib/api/services';
 import { PhotoMetadata } from '@/lib/api/types';
 import { PhotoGrid } from '@/components/PhotoGrid';
@@ -11,17 +11,16 @@ import { BookOpenIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import { Section } from '@/components/Section';
 import { PageSpacing } from '@/components/layout/PageSpacing';
 
+const emptySubscribe = () => () => {};
+
 export default function Home() {
   const { isUser, uxConfig, isLoading } = useMPContext();
   const [photos, setPhotos] = useState<PhotoMetadata[]>([]);
   const [photostreamPhotos, setPhotostreamPhotos] = useState<PhotoMetadata[]>([]);
   const [showPhotostream, setShowPhotostream] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   // Prevent hydration mismatch by only rendering after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
     async function fetchPhotos() {

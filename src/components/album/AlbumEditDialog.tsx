@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Album, PhotoOrder } from '@/lib/api/types';
 import { Dialog } from '../Dialog';
 import { TextField } from '../TextField';
@@ -17,16 +17,18 @@ export function AlbumEditDialog({ open, album, onClose }: AlbumEditDialogProps) 
   const [description, setDescription] = useState('');
   const [code, setCode] = useState('');
   const [orderBy, setOrderBy] = useState<PhotoOrder>(PhotoOrder.None);
+  const [lastAlbum, setLastAlbum] = useState(album);
 
   // Populate form when album changes
-  useEffect(() => {
+  if (album !== lastAlbum) {
+    setLastAlbum(album);
     if (album) {
       setName(album.name);
       setDescription(album.description);
       setCode(album.code);
       setOrderBy(album.orderBy);
     }
-  }, [album]);
+  }
 
   const handleOk = () => {
     if (album) {

@@ -14,12 +14,13 @@ const AUTH_URL = '/api/drive/auth?redir=' + encodeURIComponent('/account');
 export function GoogleDrive() {
   const { user, refreshAuth } = useMPContext();
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
-  const [folderName, setFolderName] = useState('');
-  const [folderId, setFolderId] = useState('');
+  const [folderName, setFolderName] = useState(user.driveFolderName || '');
+  const [folderId, setFolderId] = useState(user.driveFolderId || '');
   const [openDownloadDialog, setOpenDownloadDialog] = useState(false);
   const [numPhotos, setNumPhotos] = useState(0);
   const [job, setJob] = useState<Job | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [lastUser, setLastUser] = useState(user);
 
   // Check authentication status
   useEffect(() => {
@@ -31,11 +32,12 @@ export function GoogleDrive() {
       });
   }, []);
 
-  // Load user's drive folder info
-  useEffect(() => {
+  // Sync drive folder info when user changes
+  if (user !== lastUser) {
+    setLastUser(user);
     if (user.driveFolderId) setFolderId(user.driveFolderId);
     if (user.driveFolderName) setFolderName(user.driveFolderName);
-  }, [user]);
+  }
 
   // Poll job status when downloading
   useEffect(() => {

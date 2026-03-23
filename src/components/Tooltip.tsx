@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState, useRef } from 'react';
+import { ReactNode, useState, useRef, useEffect } from 'react';
 
 export type TooltipPlacement =
   | 'top' | 'bottom' | 'left' | 'right'
@@ -15,65 +15,70 @@ export interface TooltipProps {
 
 export function Tooltip({ children, title, placement = 'right' }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState<React.CSSProperties>({});
   const triggerRef = useRef<HTMLDivElement>(null);
 
-  const calculatePosition = () => {
-    if (!triggerRef.current) return {};
+  useEffect(() => {
+    if (!isVisible || !triggerRef.current) return;
 
     const triggerRect = triggerRef.current.getBoundingClientRect();
     const gap = 8;
-    const tooltipWidth = 150; // approximate for centered placements
-    const tooltipHeight = 24; // approximate
+    const tooltipWidth = 150;
+    const tooltipHeight = 24;
 
     switch (placement) {
       case 'top':
-        return {
+        setPosition({
           top: triggerRect.top - tooltipHeight - gap,
           left: triggerRect.left + (triggerRect.width - tooltipWidth) / 2,
-        };
+        });
+        break;
       case 'bottom':
-        return {
+        setPosition({
           top: triggerRect.bottom + gap,
           left: triggerRect.left + (triggerRect.width - tooltipWidth) / 2,
-        };
+        });
+        break;
       case 'left':
-        return {
+        setPosition({
           top: triggerRect.top + (triggerRect.height - tooltipHeight) / 2,
           left: triggerRect.left - tooltipWidth - gap,
-        };
+        });
+        break;
       case 'right':
-        return {
+        setPosition({
           top: triggerRect.top + (triggerRect.height - tooltipHeight) / 2,
           left: triggerRect.right + gap,
-        };
+        });
+        break;
       case 'bottom-left':
-        // Below, right-aligned with button (extends left)
-        return {
+        setPosition({
           top: triggerRect.bottom + gap,
           right: window.innerWidth - triggerRect.right,
-        };
+        });
+        break;
       case 'bottom-right':
-        // Below, left-aligned with button (extends right)
-        return {
+        setPosition({
           top: triggerRect.bottom + gap,
           left: triggerRect.left,
-        };
+        });
+        break;
       case 'top-left':
-        // Above, right-aligned with button (extends left)
-        return {
+        setPosition({
           top: triggerRect.top - tooltipHeight - gap,
           right: window.innerWidth - triggerRect.right,
-        };
+        });
+        break;
       case 'top-right':
-        // Above, left-aligned with button (extends right)
-        return {
+        setPosition({
           top: triggerRect.top - tooltipHeight - gap,
           left: triggerRect.left,
-        };
+        });
+        break;
       default:
-        return { top: 0, left: 0 };
+        setPosition({ top: 0, left: 0 });
     }
-  };
+  }, [isVisible, placement]);
 
   return (
     <>
@@ -89,7 +94,7 @@ export function Tooltip({ children, title, placement = 'right' }: TooltipProps) 
       {isVisible && title && (
         <div
           className="fixed z-[9999] px-2 py-1 text-xs text-white bg-[#616161] rounded shadow-lg pointer-events-none whitespace-nowrap"
-          style={calculatePosition()}
+          style={position}
         >
           {title}
         </div>

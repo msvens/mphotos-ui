@@ -106,11 +106,6 @@ export function AlbumGrid() {
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
-  // Fetch albums on mount
-  useEffect(() => {
-    fetchAlbums();
-  }, []);
-
   const fetchAlbums = async () => {
     try {
       const albumList = await albumsService.getAlbums();
@@ -120,6 +115,20 @@ export function AlbumGrid() {
       alert('Failed to fetch albums');
     }
   };
+
+  // Fetch albums on mount
+  useEffect(() => {
+    async function loadAlbums() {
+      try {
+        const albumList = await albumsService.getAlbums();
+        setAlbums(albumList);
+      } catch (error) {
+        console.error('Error fetching albums:', error);
+        alert('Failed to fetch albums');
+      }
+    }
+    loadAlbums();
+  }, []);
 
   const handleAdd = () => {
     setShowAdd(true);

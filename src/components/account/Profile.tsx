@@ -15,16 +15,19 @@ export function Profile() {
   const [bio, setBio] = useState(user.bio || '');
   const [pic, setPic] = useState(user.pic || '');
   const [picError, setPicError] = useState(false);
+  const [lastPic, setLastPic] = useState(user.pic);
 
-  // Check if current profile picture is valid
+  // Reset error state when user.pic changes, validate via Image loading in effect
+  if (user.pic !== lastPic) {
+    setLastPic(user.pic);
+    setPicError(false);
+  }
+
   useEffect(() => {
     if (user.pic) {
       const img = new Image();
-      img.onload = () => setPicError(false);
       img.onerror = () => setPicError(true);
       img.src = user.pic;
-    } else {
-      setPicError(false);
     }
   }, [user.pic]);
 

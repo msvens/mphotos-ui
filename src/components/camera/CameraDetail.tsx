@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore, useCallback } from 'react';
 import { Camera } from '@/lib/api/types';
 import { camerasService } from '@/lib/api/services';
 import { useMPContext } from '@/context/MPContext';
@@ -15,20 +15,22 @@ interface CameraDetailProps {
   onUpdate: (camera: Camera) => void;
 }
 
+function useMediaQuery(query: string): boolean {
+  const subscribe = useCallback((callback: () => void) => {
+    const mediaQuery = window.matchMedia(query);
+    mediaQuery.addEventListener('change', callback);
+    return () => mediaQuery.removeEventListener('change', callback);
+  }, [query]);
+  const getSnapshot = () => window.matchMedia(query).matches;
+  const getServerSnapshot = () => false;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
+
 export function CameraDetail({ camera, onUpdate }: CameraDetailProps) {
   const { isUser } = useMPContext();
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showImageDialog, setShowImageDialog] = useState(false);
-  const [isLargeScreen, setIsLargeScreen] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 640px)'); // Tailwind's 'sm' breakpoint
-    setIsLargeScreen(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => setIsLargeScreen(e.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  const isLargeScreen = useMediaQuery('(min-width: 640px)');
 
   const cameraImageUrl = camerasService.getCameraImageUrl(camera, isLargeScreen ? '512' : '192');
 

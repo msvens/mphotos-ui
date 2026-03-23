@@ -1,5 +1,5 @@
 import { PhotoMetadata } from '@/lib/api/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { photosService, userService } from '@/lib/api/services';
@@ -64,7 +64,7 @@ export function PhotoDeck({
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const touch: TouchState = { xStart: -1, xPos: -1, yStart: -1, yPos: -1 };
+  const touchRef = useRef<TouchState>({ xStart: -1, xPos: -1, yStart: -1, yPos: -1 });
 
   const currentPhoto = photos[currentIndex];
 
@@ -89,12 +89,14 @@ export function PhotoDeck({
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     if (showFullscreen || event.touches.length > 1) return;
     const { clientX, clientY } = event.touches[0];
+    const touch = touchRef.current;
     touch.xStart = touch.xPos = clientX;
     touch.yStart = touch.yPos = clientY;
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     if (showFullscreen || event.touches.length > 1) return;
+    const touch = touchRef.current;
     touch.xPos = event.touches[0].clientX;
     touch.yPos = event.touches[0].clientY;
   };
@@ -102,6 +104,7 @@ export function PhotoDeck({
   const handleTouchEnd = () => {
     if (showFullscreen) return;
 
+    const touch = touchRef.current;
     const deltaX = touch.xStart - touch.xPos;
     const deltaY = touch.yStart - touch.yPos;
 

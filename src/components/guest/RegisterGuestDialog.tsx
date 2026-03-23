@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog } from '../Dialog';
 import { TextField } from '../TextField';
 import { guestsService, RegisterGuestParams } from '@/lib/api/services';
@@ -25,15 +25,18 @@ export function RegisterGuestDialog({
   const [email, setEmail] = useState(initialEmail);
   const [registered, setRegistered] = useState<Guest | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [wasOpen, setWasOpen] = useState(open);
 
-  useEffect(() => {
-    if (open) {
-      setName(initialName);
-      setEmail(initialEmail);
-      setRegistered(null);
-      setError(null);
-    }
-  }, [open, initialName, initialEmail]);
+  // Reset form when dialog opens
+  if (open && !wasOpen) {
+    setName(initialName);
+    setEmail(initialEmail);
+    setRegistered(null);
+    setError(null);
+  }
+  if (open !== wasOpen) {
+    setWasOpen(open);
+  }
 
   const handleRegister = async () => {
     setError(null);
