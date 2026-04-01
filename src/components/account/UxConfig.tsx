@@ -12,15 +12,7 @@ import { RadioGroup } from '@/components/RadioGroup';
 import { ToggleSwitch } from '@/components/ToggleSwitch';
 import { Button } from '@/components/Button';
 import { useToast } from '@/context/ToastContext';
-
-// Color constants matching the old implementation
-const Colors = {
-  White: '#ffffff',
-  Light: '#fafafa',
-  Grey: '#bdbdbd',
-  Dark: '#303030',
-  Black: '#121212',  // Match dark theme background
-};
+import { Colors } from '@/lib/colors';
 
 const gridSpacings = [
   { value: '0', label: 'None' },
