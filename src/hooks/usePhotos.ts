@@ -17,7 +17,6 @@ export function usePhotos() {
 
     try {
       setIsLoading(true);
-      console.log('Loading photos, isUser:', isUser, 'photoStreamAlbumId:', uxConfig.photoStreamAlbumId);
       
       let newPhotos: PhotoMetadata[];
       if (isUser) {
@@ -33,14 +32,10 @@ export function usePhotos() {
         newPhotos = albumPhotoList.photos;
       }
       
-      console.log('Received photos:', newPhotos);
-      
       // Filter out duplicates
       const uniqueNewPhotos = newPhotos.filter(
         (newPhoto) => !photos.some((existingPhoto) => existingPhoto.id === newPhoto.id)
       );
-      console.log('Unique new photos:', uniqueNewPhotos);
-      
       setPhotos((prev) => [...prev, ...uniqueNewPhotos]);
       setHasMore(uniqueNewPhotos.length > 0);
     } catch (error) {
@@ -52,7 +47,6 @@ export function usePhotos() {
   }, [photos, isUser, uxConfig.photoStreamAlbumId, isConfigLoading]);
 
   const refresh = useCallback(async () => {
-    console.log('Refreshing photos');
     setPhotos([]);
     setHasMore(true);
     await loadPhotos();
