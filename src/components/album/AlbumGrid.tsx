@@ -118,16 +118,7 @@ export function AlbumGrid() {
 
   // Fetch albums on mount
   useEffect(() => {
-    async function loadAlbums() {
-      try {
-        const albumList = await albumsService.getAlbums();
-        setAlbums(albumList);
-      } catch (error) {
-        console.error('Error fetching albums:', error);
-        alert('Failed to fetch albums');
-      }
-    }
-    loadAlbums();
+    void (async () => { await fetchAlbums(); })();
   }, []);
 
   const handleAdd = () => {
