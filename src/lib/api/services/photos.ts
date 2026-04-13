@@ -22,12 +22,9 @@ export interface PhotosService {
   deletePhotos(removeFiles: boolean): Promise<PhotoList>;
   setPhotoAlbums(photoId: string, albumIds: string[]): Promise<AffectedItems>;
   getPhotoAlbums(photoId: string): Promise<Album[]>;
-  getThumbUrl(id: string): string;
   getLandscapeUrl(id: string): string;
   getPortraitUrl(id: string): string;
   getSquareUrl(id: string): string;
-  getResizeUrl(id: string): string;
-  getOriginalUrl(id: string): string;
   getPhotoThumbUrl(id: string): string;
   getPhotoResizeUrl(id: string): string;
   getPhotoUrl(id: string): string;
@@ -104,10 +101,6 @@ export const photosService: PhotosService = {
     return api.get<Album[]>(`${API_ENDPOINTS.photo(photoId)}/albums`);
   },
 
-  getThumbUrl(id: string) {
-    return API_ENDPOINTS.photoThumb(id);
-  },
-
   getLandscapeUrl(id: string) {
     return API_ENDPOINTS.photoLandscape(id);
   },
@@ -118,14 +111,6 @@ export const photosService: PhotosService = {
 
   getSquareUrl(id: string) {
     return API_ENDPOINTS.photoSquare(id);
-  },
-
-  getResizeUrl(id: string) {
-    return API_ENDPOINTS.photoResize(id);
-  },
-
-  getOriginalUrl(id: string) {
-    return API_ENDPOINTS.photoFile(id);
   },
 
   getPhotoThumbUrl(id: string) {
