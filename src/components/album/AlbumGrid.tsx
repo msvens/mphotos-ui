@@ -118,7 +118,7 @@ export function AlbumGrid() {
 
   // Fetch albums on mount
   useEffect(() => {
-    void (async () => { await fetchAlbums(); })();
+    fetchAlbums();
   }, []);
 
   const handleAdd = () => {
