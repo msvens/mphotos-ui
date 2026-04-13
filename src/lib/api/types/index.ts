@@ -128,14 +128,14 @@ export interface Config {
   driveConfigured: boolean;
 }
 
-export interface ApiError {
+export interface ApiErrorBody {
   status: number;
   message: string;
 }
 
 export type ApiResponse<T> = {
   data?: T;
-  error?: ApiError;
+  error?: ApiErrorBody;
 }
 
 export interface AuthUser {
