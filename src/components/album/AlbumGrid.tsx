@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Album } from '@/lib/api/types';
 import { albumsService } from '@/lib/api/services';
 import { useMPContext } from '@/context/MPContext';
+import { useToast } from '@/context/ToastContext';
 import { AlbumAddDialog } from './AlbumAddDialog';
 import { AlbumEditDialog } from './AlbumEditDialog';
 import { AlbumDeleteDialog } from './AlbumDeleteDialog';
@@ -100,6 +101,7 @@ function AlbumCard({ album, isAdmin, onEdit, onDelete }: AlbumCardProps) {
 
 export function AlbumGrid() {
   const { isUser } = useMPContext();
+  const toast = useToast();
   const [albums, setAlbums] = useState<Album[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | undefined>(undefined);
   const [showAdd, setShowAdd] = useState(false);
@@ -112,7 +114,7 @@ export function AlbumGrid() {
       setAlbums(albumList);
     } catch (error) {
       console.error('Error fetching albums:', error);
-      alert('Failed to fetch albums');
+      toast.error('Failed to fetch albums');
     }
   };
 
@@ -124,7 +126,7 @@ export function AlbumGrid() {
         setAlbums(albumList);
       } catch (error) {
         console.error('Error fetching albums:', error);
-        alert('Failed to fetch albums');
+        toast.error('Failed to fetch albums');
       }
     }
     loadAlbums();
@@ -156,7 +158,7 @@ export function AlbumGrid() {
         setSelectedAlbum(undefined);
       } catch (error) {
         console.error('Error creating album:', error);
-        alert('Failed to create album');
+        toast.error('Failed to create album');
       }
     }
     setShowAdd(false);
@@ -169,7 +171,7 @@ export function AlbumGrid() {
         await fetchAlbums();
       } catch (error) {
         console.error('Error updating album:', error);
-        alert('Failed to update album');
+        toast.error('Failed to update album');
       }
     }
     setShowEdit(false);
@@ -183,7 +185,7 @@ export function AlbumGrid() {
         setSelectedAlbum(undefined);
       } catch (error) {
         console.error('Error deleting album:', error);
-        alert('Failed to delete album');
+        toast.error('Failed to delete album');
       }
     }
     setShowDelete(false);

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { driveService } from '@/lib/api/services';
 import { userService } from '@/lib/api/services';
+import { useToast } from '@/context/ToastContext';
 import { Button } from '@/components/Button';
 import { TextField } from '@/components/TextField';
 import { useMPContext } from '@/context/MPContext';
@@ -13,6 +14,7 @@ const AUTH_URL = '/api/drive/auth?redir=' + encodeURIComponent('/account');
 
 export function GoogleDrive() {
   const { user, refreshAuth } = useMPContext();
+  const toast = useToast();
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [folderName, setFolderName] = useState(user.driveFolderName || '');
   const [folderId, setFolderId] = useState(user.driveFolderId || '');
@@ -52,7 +54,7 @@ export function GoogleDrive() {
           setIsDownloading(false);
         } else if (updatedJob.state === JobState.ABORTED) {
           setIsDownloading(false);
-          alert('Job aborted: ' + (updatedJob.error || 'Unknown error'));
+          toast.warning('Job aborted: ' + (updatedJob.error || 'Unknown error'));
         }
       } catch (error) {
         console.error('Error checking job status:', error);
@@ -68,7 +70,7 @@ export function GoogleDrive() {
       await userService.updateUserGDrive(folderName);
       await refreshAuth();
     } catch (error) {
-      alert('Error setting folder: ' + error);
+      toast.error('Error setting folder');
     }
   };
 
@@ -90,11 +92,11 @@ export function GoogleDrive() {
         setJob(newJob);
         setIsDownloading(true);
       } else {
-        alert('Unexpected job state: ' + newJob.state);
+        toast.error('Unexpected job state: ' + newJob.state);
       }
     } catch (error) {
       console.error('Error starting download:', error);
-      alert('Error starting download: ' + error);
+      toast.error('Error starting download');
     }
   };
 
@@ -112,7 +114,7 @@ export function GoogleDrive() {
         setAuthenticated(false);
       } catch (error) {
         console.error('Error disconnecting:', error);
-        alert('Error disconnecting: ' + error);
+        toast.error('Error disconnecting');
       }
     } else {
       // Connect - redirect to auth URL

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Camera } from '@/lib/api/types';
 import { camerasService } from '@/lib/api/services';
+import { useToast } from '@/context/ToastContext';
 import { Dialog } from '@/components/Dialog';
 import { Button } from '@/components/Button';
 import { Select } from '@/components/Select';
@@ -16,6 +17,7 @@ interface UpdateCameraDialogProps {
 }
 
 export function UpdateCameraDialog({ camera, open, onClose, onUpdate }: UpdateCameraDialogProps) {
+  const toast = useToast();
   const [formData, setFormData] = useState<Camera>(camera);
   const [updating, setUpdating] = useState(false);
 
@@ -53,7 +55,7 @@ export function UpdateCameraDialog({ camera, open, onClose, onUpdate }: UpdateCa
       onClose();
     } catch (error) {
       console.error('Error updating camera:', error);
-      alert('Failed to update camera: ' + error);
+      toast.error('Failed to update camera');
     } finally {
       setUpdating(false);
     }

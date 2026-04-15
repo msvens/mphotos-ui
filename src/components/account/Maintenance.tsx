@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { photosService } from '@/lib/api/services';
 import { Button } from '@/components/Button';
 import { Dialog } from '@/components/Dialog';
+import { useToast } from '@/context/ToastContext';
 
 export function Maintenance() {
+  const toast = useToast();
   const [photoCount, setPhotoCount] = useState<number>(0);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -21,7 +23,7 @@ export function Maintenance() {
     setDeleting(true);
     try {
       const result = await photosService.deletePhotos(true);
-      alert(`Successfully deleted ${result.length} photos`);
+      toast.success(`Successfully deleted ${result.length} photos`);
       setPhotoCount(0);
       setOpenDeleteDialog(false);
     } catch (error) {
