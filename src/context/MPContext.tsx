@@ -183,12 +183,8 @@ export const MPContextProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const login = async (password: string) => {
-    try {
-      await authService.login(password);
-      await refreshAuth();
-    } catch (error) {
-      throw error;
-    }
+    await authService.login(password);
+    await refreshAuth();
   };
 
   const logout = async () => {
