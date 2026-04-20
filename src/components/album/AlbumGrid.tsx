@@ -114,7 +114,7 @@ export function AlbumGrid() {
       setAlbums(albumList);
     } catch (error) {
       console.error('Error fetching albums:', error);
-      toast.error('Failed to fetch albums: ' + error);
+      toast.error('Failed to fetch albums');
     }
   };
 
@@ -126,7 +126,7 @@ export function AlbumGrid() {
         setAlbums(albumList);
       } catch (error) {
         console.error('Error fetching albums:', error);
-        toast.error('Failed to fetch albums: ' + error);
+        toast.error('Failed to fetch albums');
       }
     }
     loadAlbums();
@@ -158,7 +158,7 @@ export function AlbumGrid() {
         setSelectedAlbum(undefined);
       } catch (error) {
         console.error('Error creating album:', error);
-        toast.error('Failed to create album: ' + error);
+        toast.error('Failed to create album');
       }
     }
     setShowAdd(false);
@@ -171,7 +171,7 @@ export function AlbumGrid() {
         await fetchAlbums();
       } catch (error) {
         console.error('Error updating album:', error);
-        toast.error('Failed to update album: ' + error);
+        toast.error('Failed to update album');
       }
     }
     setShowEdit(false);
@@ -185,7 +185,7 @@ export function AlbumGrid() {
         setSelectedAlbum(undefined);
       } catch (error) {
         console.error('Error deleting album:', error);
-        toast.error('Failed to delete album: ' + error);
+        toast.error('Failed to delete album');
       }
     }
     setShowDelete(false);

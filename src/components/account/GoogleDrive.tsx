@@ -70,7 +70,7 @@ export function GoogleDrive() {
       await userService.updateUserGDrive(folderName);
       await refreshAuth();
     } catch (error) {
-      toast.error('Error setting folder: ' + error);
+      toast.error('Error setting folder');
     }
   };
 
@@ -96,7 +96,7 @@ export function GoogleDrive() {
       }
     } catch (error) {
       console.error('Error starting download:', error);
-      toast.error('Error starting download: ' + error);
+      toast.error('Error starting download');
     }
   };
 
@@ -114,7 +114,7 @@ export function GoogleDrive() {
         setAuthenticated(false);
       } catch (error) {
         console.error('Error disconnecting:', error);
-        toast.error('Error disconnecting: ' + error);
+        toast.error('Error disconnecting');
       }
     } else {
       // Connect - redirect to auth URL
