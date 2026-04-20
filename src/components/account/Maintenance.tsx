@@ -28,7 +28,7 @@ export function Maintenance() {
       setOpenDeleteDialog(false);
     } catch (error) {
       console.error('Error deleting photos:', error);
-      alert('Failed to delete photos: ' + error);
+      toast.error('Failed to delete photos');
     } finally {
       setDeleting(false);
     }
