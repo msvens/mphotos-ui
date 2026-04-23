@@ -1,20 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { authService, guestsService } from '@/lib/api/services';
-
-export interface User {
-  name: string;
-  bio: string;
-  pic: string;
-  driveFolderId?: string;
-  driveFolderName?: string;
-}
-
-export interface Guest {
-  email: string;
-  name: string;
-  verified: boolean;
-  verifyTime: string;
-}
+import { User, Guest } from '@/lib/api/types';
 
 export interface UXConfig {
   photoStreamAlbumId: string;
@@ -59,8 +45,9 @@ const defaultUXConfig: UXConfig = {
 
 const defaultUser: User = {
   name: '',
+  email: '',
   bio: '',
-  pic: '',
+  image: '',
 };
 
 export const MPContext = createContext<MPContextType>({

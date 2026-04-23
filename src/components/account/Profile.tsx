@@ -13,23 +13,23 @@ export function Profile() {
   const toast = useToast();
   const [name, setName] = useState(user.name || '');
   const [bio, setBio] = useState(user.bio || '');
-  const [pic, setPic] = useState(user.pic || '');
+  const [pic, setPic] = useState(user.image || '');
   const [picError, setPicError] = useState(false);
-  const [lastPic, setLastPic] = useState(user.pic);
+  const [lastPic, setLastPic] = useState(user.image);
 
-  // Reset error state when user.pic changes, validate via Image loading in effect
-  if (user.pic !== lastPic) {
-    setLastPic(user.pic);
+  // Reset error state when user.image changes, validate via Image loading in effect
+  if (user.image !== lastPic) {
+    setLastPic(user.image);
     setPicError(false);
   }
 
   useEffect(() => {
-    if (user.pic) {
+    if (user.image) {
       const img = new Image();
       img.onerror = () => setPicError(true);
-      img.src = user.pic;
+      img.src = user.image;
     }
-  }, [user.pic]);
+  }, [user.image]);
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -99,10 +99,10 @@ export function Profile() {
           {/* Preview current picture */}
           <div className="mt-3 flex items-center gap-4">
             <span className="text-sm text-gray-600 dark:text-gray-400">Current picture:</span>
-            {user.pic && !picError ? (
+            {user.image && !picError ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={user.pic}
+                src={user.image}
                 alt="Profile preview"
                 onError={() => setPicError(true)}
                 className="w-16 h-16 rounded-full object-cover"

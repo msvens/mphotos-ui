@@ -13,7 +13,7 @@ export function Bio() {
   const { isUser, user } = useMPContext();
   const [isLargeDisplay, setIsLargeDisplay] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [lastPic, setLastPic] = useState(user.pic);
+  const [lastPic, setLastPic] = useState(user.image);
 
   useEffect(() => {
     function handleResize() {
@@ -25,9 +25,9 @@ export function Bio() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Reset error state when user.pic changes
-  if (user.pic !== lastPic) {
-    setLastPic(user.pic);
+  // Reset error state when user.image changes
+  if (user.image !== lastPic) {
+    setLastPic(user.image);
     setImageError(false);
   }
 
@@ -37,10 +37,10 @@ export function Bio() {
     <div className="w-full mx-auto">
       <div className="flex flex-wrap items-center justify-center gap-8">
         <div className="flex items-center">
-          {user.pic && !imageError ? (
+          {user.image && !imageError ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={user.pic}
+              src={user.image}
               alt={user.name}
               onError={() => setImageError(true)}
               className={`rounded-full object-cover ${getImageSize(isLargeDisplay)}`}
