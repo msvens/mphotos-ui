@@ -6,6 +6,8 @@ export const API_ENDPOINTS = {
     login: '/api/login',
     logout: '/api/logout',
     loggedIn: '/api/loggedin',
+    authMethod: '/api/auth/method',
+    loginGoogle: '/api/login/google',
 
     // User and config
     user: '/api/user',

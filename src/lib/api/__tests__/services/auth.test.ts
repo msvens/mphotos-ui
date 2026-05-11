@@ -60,4 +60,25 @@ describe('authService', () => {
       expect(await authService.isLoggedIn()).toBe(false);
     });
   });
+
+  describe('getAuthMethod', () => {
+    it('returns "password" when API responds with password method', async () => {
+      vi.mocked(api.get).mockResolvedValue({ method: 'password' });
+      const result = await authService.getAuthMethod();
+      expect(api.get).toHaveBeenCalledWith(API_ENDPOINTS.authMethod);
+      expect(result).toBe('password');
+    });
+
+    it('returns "google" when API responds with google method', async () => {
+      vi.mocked(api.get).mockResolvedValue({ method: 'google' });
+      const result = await authService.getAuthMethod();
+      expect(api.get).toHaveBeenCalledWith(API_ENDPOINTS.authMethod);
+      expect(result).toBe('google');
+    });
+
+    it('propagates errors when the endpoint fails', async () => {
+      vi.mocked(api.get).mockRejectedValue(new Error('Network error'));
+      await expect(authService.getAuthMethod()).rejects.toThrow('Network error');
+    });
+  });
 });
