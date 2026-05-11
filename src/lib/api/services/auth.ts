@@ -9,10 +9,17 @@ export interface LoginRequest {
   password: string;
 }
 
+export type AuthMethod = 'password' | 'google';
+
+export interface AuthMethodResponse {
+  method: AuthMethod;
+}
+
 export interface AuthService {
   login(password: string): Promise<AuthUser>;
   logout(): Promise<AuthUser>;
   isLoggedIn(): Promise<boolean>;
+  getAuthMethod(): Promise<AuthMethod>;
 }
 
 export const authService: AuthService = {
@@ -34,5 +41,10 @@ export const authService: AuthService = {
     } catch {
       return false;
     }
+  },
+
+  async getAuthMethod(): Promise<AuthMethod> {
+    const response = await api.get<AuthMethodResponse>(API_ENDPOINTS.authMethod);
+    return response.method;
   },
 };
